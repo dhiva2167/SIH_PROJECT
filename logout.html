@@ -102,23 +102,24 @@
       <button id="cancelLogout">Cancel</button>
     </div>
   </div>
+  
+<script>
+  const confirmLogout = document.getElementById("confirmLogout");
+  const cancelLogout = document.getElementById("cancelLogout");
 
-  <script>
-    const confirmLogout = document.getElementById("confirmLogout");
-    const cancelLogout = document.getElementById("cancelLogout");
+  // If user confirms logout
+  confirmLogout.addEventListener("click", () => {
+    localStorage.removeItem("currentUser"); 
+    alert("✅ You have been logged out!");
+    window.location.href = "index.html"; // go back to homepage
+  });
 
-    // If user confirms logout
-    confirmLogout.addEventListener("click", () => {
-      localStorage.removeItem("currentUser"); 
-      alert("✅ You have been logged out!");
-      window.location.href = "index.html"; // go back to homepage
-    });
+  // If user cancels logout
+  cancelLogout.addEventListener("click", () => {
+    window.location.href = "index.html"; // go back to homepage instead of menu
+  });
+</script>
 
-    // If user cancels logout
-    cancelLogout.addEventListener("click", () => {
-      window.location.href = "menu.html"; // back to menu page
-    });
-  </script>
 
 </body>
 </html>
