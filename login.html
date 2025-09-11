@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Sign Up</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f0f0;
+      padding: 10px;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+      width: 350px;
+      max-width: 100%;
+    }
+
+    h2 { 
+      text-align: center; 
+      font-size: 1.5rem;
+    }
+
+    label { 
+      display: block; 
+      margin-top: 15px; 
+      font-size: 0.95rem;
+    }
+
+    input { 
+      width: 100%; 
+      padding: 8px; 
+      margin-top: 5px; 
+      border-radius: 5px; 
+      border: 1px solid #ccc; 
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 20px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover { 
+      background-color: #9de6a1; 
+    }
+
+    #message { 
+      margin-top: 15px; 
+      text-align: center; 
+      font-weight: bold; 
+      color: red; 
+    }
+
+    .toggle-btn { 
+      background: none; 
+      border: none; 
+      color: #007BFF; 
+      cursor: pointer; 
+      margin-top: 10px; 
+      display: block;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+    
+    /* Captcha styling */
+    #captchaBox {
+      background-color: black;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+      text-align: center;
+      padding: 10px;
+      border-radius: 5px;
+      letter-spacing: 5px;
+      margin-top: 5px;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      .container {
+        width: 100%;
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+      }
+
+      input {
+        font-size: 0.9rem;
+        padding: 7px;
+      }
+
+      button {
+        font-size: 0.95rem;
+        padding: 9px;
+      }
+
+      #captchaBox {
+        font-size: 18px;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2 id="formTitle">Login</h2>
+
+  <label for="email">Email:</label>
+  <input type="email" id="email" placeholder="Enter your email" required>
+
+  <label for="password">Password:</label>
+  <input type="password" id="password" placeholder="Enter your password" required>
+
+  <label for="captcha">Captcha:</label>
+  <div id="captchaBox"></div>
+  <input type="text" id="captchaInput" placeholder="Enter captcha" required>
+
+  <button id="submitBtn">Login</button>
+  <div id="message"></div>
+
+  <button class="toggle-btn" id="toggleBtn">Don't have an account? Sign Up</button>
+</div>
+
+<script>
+  // Generate simple captcha
+  let captchaValue;
+  function generateCaptcha() {
+    captchaValue = Math.floor(1000 + Math.random() * 9000); // 4-digit number
+    document.getElementById("captchaBox").innerText = captchaValue;
+  }
+  generateCaptcha();
+
+  // Toggle between login and signup
+  let isLogin = true;
+  const toggleBtn = document.getElementById("toggleBtn");
+  const formTitle = document.getElementById("formTitle");
+  const submitBtn = document.getElementById("submitBtn");
+  const message = document.getElementById("message");
+
+  toggleBtn.addEventListener("click", () => {
+    isLogin = !isLogin;
+    if(isLogin) {
+      formTitle.innerText = "Login";
+      submitBtn.innerText = "Login";
+      toggleBtn.innerText = "Don't have an account? Sign Up";
+    } else {
+      formTitle.innerText = "Sign Up";
+      submitBtn.innerText = "Sign Up";
+      toggleBtn.innerText = "Already have an account? Login";
+    }
+    message.innerText = "";
+    generateCaptcha();
+  });
+
+  // Handle login/signup
+  submitBtn.addEventListener("click", () => {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const captchaInput = document.getElementById("captchaInput").value.trim();
+
+    if(!email || !password || !captchaInput){
+      message.style.color = "red";
+      message.innerText = "Please fill all fields!";
+      return;
+    }
+
+    if(captchaInput != captchaValue){
+      message.style.color = "red";
+      message.innerText = "Captcha is incorrect!";
+      generateCaptcha();
+      return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    if(isLogin){
+      // LOGIN
+      const user = users.find(u => u.email === email);
+      if(!user){
+        message.style.color = "red";
+        message.innerText = "Email not registered!";
+        return;
+      }
+      if(user.password !== password){
+        message.style.color = "red";
+        message.innerText = "Incorrect password!";
+        return;
+      }
+      // Login success
+      localStorage.setItem("currentUser", email);
+      message.style.color = "green";
+      message.innerText = "Login successful! Redirecting...";
+      setTimeout(() => { window.location.href = "index.html"; }, 1000);
+    } else {
+      // SIGNUP
+      const userExists = users.find(u => u.email === email);
+      if(userExists){
+        message.style.color = "red";
+        message.innerText = "Email already registered!";
+        return;
+      }
+      users.push({email, password});
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("currentUser", email);
+      message.style.color = "green";
+      message.innerText = "Sign Up successful! Redirecting...";
+      setTimeout(() => { window.location.href = "index.html"; }, 1000);
+    }
+  });
+</script>
+</body>
+</html>

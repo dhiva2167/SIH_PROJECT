@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puzzle Map - 50 Levels with Nature</title>
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #4CAF50; /* grass */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    font-family: Arial, sans-serif;
+  }
+
+  #badgeDisplay {
+    margin: 15px;
+    padding: 10px 20px;
+    background: #fff;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+    text-align: center;
+  }
+
+  .path {
+    position: relative;
+    width: 55vw;
+    background-color: #f4e1b3; /* sand */
+    border-radius: 50px;
+    padding-bottom: 100px;
+  }
+
+  .circle {
+    width: 70px;
+    height: 70px;
+    background-color: #ffcc00;
+    border-radius: 50%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    border: 3px solid #fff;
+    font-size: 1.5rem;
+    cursor: default;
+    text-align: center;
+  }
+
+  .circle span { font-size: 1.5rem; }
+
+  .unlocked { cursor: pointer; }
+  .unlocked:hover { transform: scale(1.15); transition: 0.3s; }
+
+  .level-num {
+    position: absolute;
+    font-weight: bold;
+    color: black;
+    font-size: 1rem;
+    text-align: center;
+    width: 40px;
+    margin-left: -20px;
+  }
+
+  svg { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    pointer-events: none; 
+  }
+  line { stroke: white; stroke-width: 4; }
+
+  .tree, .animal {
+    position: absolute;
+    font-size: 2rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .path {
+      width: 85vw;
+    }
+    .circle {
+      width: 55px;
+      height: 55px;
+      font-size: 1.2rem;
+    }
+    .circle span { font-size: 1.2rem; }
+    .level-num {
+      font-size: 0.9rem;
+    }
+    #badgeDisplay {
+      font-size: 1rem;
+      padding: 8px 15px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .circle {
+      width: 50px;
+      height: 50px;
+      font-size: 1rem;
+    }
+    .circle span { font-size: 1rem; }
+    .level-num {
+      font-size: 0.8rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 🏅 Badge display -->
+  <div id="badgeDisplay">No Badge Yet</div>
+
+  <!-- Sand path and circles -->
+  <div class="path" id="path">
+    <svg id="lines"></svg>
+  </div>
+
+<script>
+const levels = 50;
+const path = document.getElementById('path');
+const svg = document.getElementById('lines');
+const circleSize = 70;
+const spacing = 150;
+const circles = [];
+
+// Create circles
+for(let i = 0; i < levels; i++) {
+  const circle = document.createElement('div');
+  circle.classList.add('circle');
+  circle.style.top = `${i * spacing + 50}px`;
+
+  const leftPercent = (i % 2 === 0) ? 10 : 60;
+  circle.style.left = `${leftPercent}%`;
+
+  // default locked
+  circle.innerHTML = `<span>🔒</span>`;
+
+  // unlock if saved
+  if(localStorage.getItem(`level${i+1}Unlocked`) === "true"){
+    circle.classList.add('unlocked');
+    circle.innerHTML = `<a href="puzzlepuzzle.html?level=${i+1}">🔓</a>`;
+  }
+
+  // first circle always unlocked
+  if(i === 0){
+    circle.classList.add('unlocked');
+    circle.innerHTML = `<a href="puzzlepuzzle.html?level=1">🔓</a>`;
+  }
+
+  path.appendChild(circle);
+  circles.push(circle);
+
+  // Level number
+  const num = document.createElement('div');
+  num.classList.add('level-num');
+  num.style.top = `${i * spacing + 15}px`;
+  num.style.left = `${leftPercent}%`;
+  num.innerText = i + 1;
+  path.appendChild(num);
+}
+
+// Connect circles
+for(let i = 0; i < circles.length - 1; i++) {
+  const c1 = circles[i].getBoundingClientRect();
+  const c2 = circles[i+1].getBoundingClientRect();
+  const pathRect = path.getBoundingClientRect();
+  const x1 = c1.left + circleSize/2 - pathRect.left;
+  const y1 = c1.top + circleSize/2 - pathRect.top;
+  const x2 = c2.left + circleSize/2 - pathRect.left;
+  const y2 = c2.top + circleSize/2 - pathRect.top;
+
+  const line = document.createElementNS("http://www.w3.org/2000/svg",'line');
+  line.setAttribute('x1', x1);
+  line.setAttribute('y1', y1);
+  line.setAttribute('x2', x2);
+  line.setAttribute('y2', y2);
+  svg.appendChild(line);
+}
+
+// Path height
+path.style.minHeight = `${levels * spacing + 100}px`;
+
+// 🌳 Add trees and animals
+const natureElements = ['🌳','🌴','🌲','🦌','🐇','🦊','🦉'];
+const nature = document.body;
+for(let i = 0; i < levels; i++) {
+  const el = document.createElement('div');
+  el.classList.add(i % 4 < 2 ? 'tree' : 'animal');
+  el.style.top = `${i * spacing + 50}px`;
+  if(i % 2 === 0){
+    el.style.left = `${Math.random() * 8}%`;
+  } else {
+    el.style.right = `${Math.random() * 8}%`;
+  }
+  el.innerText = natureElements[Math.floor(Math.random()*natureElements.length)];
+  nature.appendChild(el);
+}
+
+// 🏅 Show badge
+const badge = localStorage.getItem("puzzleBadge");
+if(badge){
+  document.getElementById("badgeDisplay").innerText = "🏅 Current Badge: " + badge;
+}
+</script>
+</body>
+</html>

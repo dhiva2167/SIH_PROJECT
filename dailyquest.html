@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Quest - Quiz</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f8ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    margin-top: 20px;
+    color: #333;
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .quiz-container {
+    width: 90%;
+    max-width: 700px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    margin-top: 20px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .progress {
+    height: 15px;
+    width: 0;
+    background-color: #28a745;
+    transition: 0.3s;
+  }
+
+  .question-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+
+  .question {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .options button {
+    padding: 12px;
+    border: 2px solid #007BFF;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1rem;
+    text-align: left;
+    word-wrap: break-word;
+  }
+
+  .options button:hover {
+    background-color: #007BFF;
+    color: #fff;
+  }
+
+  #submitBtn {
+    padding: 10px 22px;
+    font-size: 1.1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 250px;
+    align-self: center;
+  }
+
+  #submitBtn:hover {
+    background-color: #218838;
+  }
+
+  #message {
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .star {
+    color: gold;
+    font-size: 1.5rem;
+    margin-left: 5px;
+  }
+
+  .option-label {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+  .badge {
+    font-size: 2rem;
+    margin-top: 10px;
+    display: block;
+    text-align: center;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    .quiz-container {
+      padding: 15px;
+    }
+
+    .question {
+      font-size: 1rem;
+    }
+
+    .options button {
+      font-size: 0.95rem;
+      padding: 10px;
+    }
+
+    #submitBtn {
+      font-size: 1rem;
+      padding: 10px;
+      max-width: 200px;
+    }
+
+    #message {
+      font-size: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>🗡️ Daily Quest</h1>
+
+<div class="quiz-container" id="quizContainer">
+  <div class="progress-bar">
+    <div class="progress" id="progress"></div>
+  </div>
+
+  <div id="quizContent"></div>
+
+  <button id="submitBtn">Submit Answer</button>
+  <div id="message"></div>
+</div>
+
+<script>
+  // -------------------------------
+  // Daily Quest Setup
+  // -------------------------------
+
+  const today = new Date().toISOString().slice(0,10);
+  const key = `dailyQuest-${today}`;
+  let completedToday = JSON.parse(localStorage.getItem(key));
+
+  if (completedToday && completedToday.completed) {
+    document.getElementById('quizContainer').innerHTML = `
+      <h2>✅ You already completed today's Daily Quest!</h2>
+      <p>Your Score: ${completedToday.score}/100</p>
+      <p class="badge">🏅 Badge: ${completedToday.badge}</p>
+    `;
+  } else {
+
+    const questions = [
+      { q: "What is the capital of France?", options: ["Paris","London","Rome","Berlin"], answer: 0 },
+      { q: "Which planet is known as the Red Planet?", options: ["Mars","Venus","Jupiter","Saturn"], answer: 0 },
+      { q: "What is 5 + 7?", options: ["12","10","14","13"], answer: 0 },
+      { q: "Which gas do plants absorb from the atmosphere?", options: ["Oxygen","Carbon Dioxide","Nitrogen","Helium"], answer: 1 },
+      { q: "Who wrote 'Romeo and Juliet'?", options: ["Shakespeare","Hemingway","Tolstoy","Dickens"], answer: 0 }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedOption = null;
+
+    const quizContent = document.getElementById('quizContent');
+    const submitBtn = document.getElementById('submitBtn');
+    const progressBar = document.getElementById('progress');
+    const message = document.getElementById('message');
+
+    function loadQuestion() {
+      const q = questions[currentQuestion];
+      let html = `<div class="question-container">`;
+      html += `<div class="question">Q${currentQuestion + 1}: ${q.q}</div>`;
+      html += `<div class="options">`;
+
+      const labels = ['A','B','C','D'];
+
+      q.options.forEach((opt,i)=>{
+        html += `<button onclick="selectOption(${i})"><span class="option-label">${labels[i]}.</span>${opt}</button>`;
+      });
+
+      html += `</div>`;
+      html += `</div>`;
+      quizContent.innerHTML = html;
+      progressBar.style.width = `${(currentQuestion/questions.length)*100}%`;
+      message.innerText = '';
+    }
+
+    window.selectOption = function(i) {
+      selectedOption = i;
+      const buttons = document.querySelectorAll('.options button');
+      buttons.forEach((b,j) => {
+        b.style.backgroundColor = (i===j ? '#007BFF' : '#fff');
+        b.style.color = (i===j ? '#fff' : '#000');
+      });
+    }
+
+    loadQuestion();
+
+    function getBadge(score){
+      if(score >= 41) return "💎 Diamond";
+      if(score >= 31) return "🥇 Gold";
+      if(score >= 21) return "🥈 Silver";
+      if(score >= 10) return "🥉 Bronze";
+      return "❌ No Badge";
+    }
+
+    submitBtn.addEventListener('click', () => {
+      if(selectedOption === null){
+        message.style.color = 'red';
+        message.innerText = 'Please select an option!';
+        return;
+      }
+
+      if(selectedOption === questions[currentQuestion].answer){
+        score += 10;
+        message.style.color = 'green';
+        message.innerHTML = `✅ Correct! <span class="star">⭐</span>`;
+      } else {
+        message.style.color = 'red';
+        message.innerHTML = `❌ Wrong! Correct: ${questions[currentQuestion].options[questions[currentQuestion].answer]}`;
+      }
+
+      setTimeout(()=>{
+        currentQuestion++;
+        selectedOption = null;
+
+        if(currentQuestion < questions.length){
+          loadQuestion();
+        } else {
+          const badge = getBadge(score);
+
+          quizContent.innerHTML = `
+            <h2>🎉 Daily Quest Completed!</h2>
+            <p>Your Score: ${score}/50</p>
+            <p class="badge">🏅 Badge: ${badge}</p>
+          `;
+          submitBtn.style.display = 'none';
+          progressBar.style.width = '100%';
+
+          localStorage.setItem(key, JSON.stringify({completed:true, score:score, badge:badge}));
+        }
+      }, 1000);
+    });
+
+  }
+</script>
+
+</body>
+</html>

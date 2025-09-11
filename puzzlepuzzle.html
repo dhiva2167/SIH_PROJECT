@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puzzle</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #e8f5e9;
+      font-family: Arial, sans-serif;
+      padding: 10px;
+    }
+
+    h1 { margin-bottom: 15px; font-size: 1.5rem; }
+
+    #puzzle-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 3px;
+      margin-bottom: 20px;
+      width: 90vw;
+      max-width: 320px;
+      height: auto;
+      aspect-ratio: 1 / 1; /* Always square */
+    }
+
+    .piece {
+      width: 100%;
+      height: 100%;
+      background-size: 300% 300%; /* Scale image for grid */
+      cursor: grab;
+      border: 1px solid #999;
+    }
+
+    #reference { margin: 10px; text-align: center; }
+    #reference img {
+      width: 40vw;
+      max-width: 150px;
+      border: 2px solid #333;
+    }
+
+    #submitBtn {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: green;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #submitBtn:hover { background-color: blue; }
+
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /* Mobile first adjustments */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.2rem; }
+      #submitBtn { font-size: 0.9rem; padding: 8px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <h1 id="levelTitle">Puzzle</h1>
+  <div id="puzzle-container"></div>
+  <div id="reference">
+    <p>Reference Image:</p>
+    <img id="refImage" src="" alt="Reference">
+  </div>
+  <button id="submitBtn">Submit</button>
+  <div id="message"></div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const level = parseInt(urlParams.get('level')) || 1;
+document.getElementById('levelTitle').innerText = "Level " + level + " Puzzle";
+
+// Fallback images
+const fallbackImages = {
+  1: "images/openart_image_1757433444307.jpg",
+  2: "images/openart_image_1757433487686.jpg",
+  3: "images/openart_image_1757433411720.jpg",
+  4: "images/openart_image_1757433444307.jpg",
+  5: "images/openart_image_1757433487686.jpg",
+  6: "images/openart_image_1757433444307.jpg",
+  7: "images/openart_image_1757433487686.jpg",
+  8: "images/openart_image_1757433411720.jpg",
+  9: "images/openart_image_1757433444307.jpg",
+ 10: "images/openart_image_1757433487686.jpg",
+ 11: "images/openart_image_1757433444307.jpg",
+ 12: "images/openart_image_1757433411720.jpg",
+ 13: "images/openart_image_1757433444307.jpg",
+  14: "images/openart_image_1757433487686.jpg",
+  15: "images/openart_image_1757433411720.jpg",
+  16: "images/openart_image_1757433444307.jpg",
+  17: "images/openart_image_1757433487686.jpg",
+  18: "images/openart_image_1757433444307.jpg",
+  19: "images/openart_image_1757433487686.jpg",
+  20: "images/openart_image_1757433411720.jpg",
+  21: "images/openart_image_1757433444307.jpg",
+ 22: "images/openart_image_1757433487686.jpg",
+ 23: "images/openart_image_1757433444307.jpg",
+ 24: "images/openart_image_1757433411720.jpg",
+ 25: "images/openart_image_1757433444307.jpg",
+  26: "images/openart_image_1757433487686.jpg",
+  27: "images/openart_image_1757433411720.jpg",
+  28: "images/openart_image_1757433444307.jpg",
+  29: "images/openart_image_1757433487686.jpg",
+  30: "images/openart_image_1757433444307.jpg",
+  31: "images/openart_image_1757433487686.jpg",
+  32: "images/openart_image_1757433411720.jpg",
+  33: "images/openart_image_1757433444307.jpg",
+ 34: "images/openart_image_1757433487686.jpg",
+ 35: "images/openart_image_1757433444307.jpg",
+ 36: "images/openart_image_1757433411720.jpg",
+  50: "images/openart_image_1757433999999.jpg"
+};
+let imagePath = `images/level${level}.jpg`;
+if (fallbackImages[level]) imagePath = fallbackImages[level];
+document.getElementById("refImage").src = imagePath;
+
+const container = document.getElementById('puzzle-container');
+let positions = [];
+for (let y = 0; y < 3; y++) for (let x = 0; x < 3; x++) positions.push({x, y});
+let shuffled = positions.slice().sort(() => Math.random() - 0.5);
+let correctOrder = positions.map(p => `${p.x}-${p.y}`);
+
+// Build pieces
+shuffled.forEach(pos => {
+  const piece = document.createElement('div');
+  piece.classList.add('piece');
+  piece.style.backgroundImage = `url(${imagePath})`;
+  piece.style.backgroundPosition = `${-(pos.x * 100)}% ${-(pos.y * 100)}%`;
+  piece.dataset.position = `${pos.x}-${pos.y}`;
+  piece.draggable = true;
+  container.appendChild(piece);
+});
+
+// Drag & drop
+let dragged;
+container.addEventListener("dragstart", e => { if(e.target.classList.contains("piece")) dragged = e.target; });
+container.addEventListener("dragover", e => e.preventDefault());
+container.addEventListener("drop", e => {
+  if(e.target.classList.contains("piece")){
+    const tempPos = dragged.dataset.position;
+    const tempBg = dragged.style.backgroundPosition;
+    dragged.dataset.position = e.target.dataset.position;
+    dragged.style.backgroundPosition = e.target.style.backgroundPosition;
+    e.target.dataset.position = tempPos;
+    e.target.style.backgroundPosition = tempBg;
+  }
+});
+
+// Submit button
+document.getElementById("submitBtn").addEventListener("click", () => {
+  const pieces = [...document.querySelectorAll(".piece")];
+  const currentOrder = pieces.map(p => p.dataset.position);
+  if (JSON.stringify(currentOrder) === JSON.stringify(correctOrder)) {
+    document.getElementById("message").style.color = "green";
+    document.getElementById("message").innerText = "✅ Correct! Level Complete!";
+    setTimeout(() => {
+      localStorage.setItem(`level${level+1}Unlocked`, "true");
+
+      // Count unlocked
+      let unlockedCount = 0;
+      for(let i=1; i<=50; i++){
+        if(localStorage.getItem(`level${i}Unlocked`) === "true"){
+          unlockedCount++;
+        }
+      }
+
+      // Award badges
+      let badge = "";
+      if(unlockedCount >= 50) badge = "👑 Nature Legend";
+      else if(unlockedCount >= 40) badge = "🛡️ Planet Guardian";
+      else if(unlockedCount >= 30) badge = "🌟 Egi-Freak";
+      else if(unlockedCount >= 20) badge = "🌍 Earth Defender";
+      else if(unlockedCount >= 10) badge = "🌱 Eco-Warrior";
+
+      if(badge) localStorage.setItem("puzzleBadge", badge);
+
+      window.location.href = "puzzle.html";
+    }, 1500);
+  } else {
+    document.getElementById("message").style.color = "red";
+    document.getElementById("message").innerText = "❌ Wrong! Try Again.";
+  }
+});
+</script>
+</body>
+</html>

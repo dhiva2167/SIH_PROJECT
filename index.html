@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamified Education Platform</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="sample.js" defer></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background: #a3a9da;
+      color: #030303;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 15px;
+      flex-wrap: wrap;
+      background: #363333;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .search-box input {
+      width: 150px;
+      padding: 5px;
+    }
+
+    /* Hero video */
+   /* Hero Section */
+
+.hero video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+    /* Features cards */
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      padding: 20px 10px;
+    }
+
+    .features .card {
+      flex: 1 1 250px;
+      max-width: 300px;
+      padding: 15px;
+      border: 1px solid #1c5e1a;
+      border-radius: 10px;
+      background: #82c268;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    /* Pollution sections */
+    section.shadow {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      padding: 20px 15px;
+    }
+
+    .pollution-item {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      background: #4cb0f3;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .pollution-item img {
+      max-width: 200px;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    .pollution-text {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .pollution-text h2 {
+      margin: 0 0 10px;
+    }
+
+    .pollution-text h4 {
+      margin: 0;
+      font-weight: normal;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 15px;
+      background: #333;
+      color: #fff;
+    }
+
+    footer a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 5px;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive screens */
+    @media (max-width: 768px) {
+      .pollution-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .pollution-text {
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="nav-left">
+      <button id="menu-btn">&#9776;</button>
+    </div>
+    <div class="nav-center">
+      <div class="search-box">
+        <input type="text" placeholder="Search...">
+        <button>🔍</button>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a href="login.html" class="login-btn">Login</a>
+    </div>
+  </div>
+
+  <div id="menu-content" class="menu-content">
+    <a href="puzzle.html">🧩 Puzzles Zone</a>
+    <a href="profile.html">👤 Profile</a>
+    <a href="dailyquest.html">🗡️ Daily Quest</a>
+    <a href="achievements.html">🎖️ Badges & Achievements</a>
+    <a href="logout.html">🚪 Logout</a>
+  </div>
+  <div id="menu-overlay" class="menu-overlay"></div>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <video autoplay muted loop playsinline class="bg-video">
+      <source src="videos/openart-video_2099c300_1757071779485.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="card">
+      <h3>Get Instant Stars ⭐</h3>
+      <p>Earn stars for every correct answer and activity completed.</p>
+    </div>
+    <div class="card">
+      <h3>Earn Ranks & Honors 🏆</h3>
+      <p>Climb the leaderboard and unlock special badges.</p>
+    </div>
+  </div>
+
+  <!-- Pollution sections -->
+  <section class="shadow">
+    <div class="pollution-item">
+      <img src="images/1440x810_cmsv2_0492db39-425d-56e4-a14a-3f63b8f7d94f-6098096.webp" alt="Air Pollution">
+      <div class="pollution-text">
+        <h2>🌌 Air Pollution</h2>
+        <h4>
+          Air pollution is the contamination of air by harmful substances such as smoke, gases, and chemicals. 
+          Major sources include vehicles, factories, and burning fuels. 
+          It causes serious health problems like asthma, lung diseases, and heart issues while damaging the environment.
+        </h4>
+      </div>
+    </div>
+
+    <div class="pollution-item">
+      <img src="images/water-anime-style_23-2151080218.jpg" alt="Water Pollution">
+      <div class="pollution-text">
+        <h2>💧 Water Pollution</h2>
+        <h4>
+          Water Pollution occurs when harmful substances such as chemicals, plastics, and waste contaminate rivers, lakes, oceans, 
+          or underground water, making it unsafe for people and the environment. 
+          Major sources include factories, farms, sewage, and household dumping. 
+          This pollution spreads dangerous diseases, damages aquatic life, and reduces freshwater availability.
+        </h4>
+      </div>
+    </div>
+
+    <div class="pollution-item">
+      <img src="images/61d54f4f4e.jpg" alt="Soil Pollution">
+      <div class="pollution-text">
+        <h2>🌱 Soil Pollution</h2>
+        <h4>
+          Soil Pollution happens when land is contaminated by chemicals, plastics, and waste, reducing its fertility and harming living beings. 
+          It is mainly caused by pesticides, fertilizers, industrial waste, and poor waste disposal. 
+          Polluted soil affects crops, food safety, and ecosystems. 
+          Preventing it requires eco-friendly farming, recycling, and proper waste management.
+        </h4>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Footer -->
+  <footer>
+    <a href="#">Privacy Policy</a> | 
+    <a href="#">Terms of Service</a> | 
+    <a href="#">About Us</a> | 
+    <a href="#">Contact Us</a>
+  </footer>
+</body>
+</html>

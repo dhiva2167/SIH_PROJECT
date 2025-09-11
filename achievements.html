@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Achievements</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+  }
+  h1 {
+    margin-bottom: 20px;
+    color: gold;
+    font-size: 2rem;
+  }
+  .badge-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  .badge-card {
+    background: #222;
+    border-radius: 12px;
+    padding: 20px;
+    width: 200px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+    transition: transform 0.3s;
+  }
+  .badge-card:hover {
+    transform: scale(1.05);
+  }
+  .badge-card h3 {
+    margin: 10px 0;
+    font-size: 1.2em;
+  }
+  .badge-icon {
+    font-size: 3em;
+  }
+  .badge-source {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #aaa;
+  }
+  .empty {
+    margin-top: 40px;
+    font-size: 1.2em;
+    color: #bbb;
+  }
+
+  /* Responsive styles */
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 1.6rem;
+    }
+    .badge-card {
+      width: 100%;
+      max-width: 250px;
+      padding: 15px;
+    }
+    .badge-icon {
+      font-size: 2.5em;
+    }
+    .badge-card h3 {
+      font-size: 1.1em;
+    }
+    .badge-source {
+      font-size: 0.85em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>🎖️ Your Achievements</h1>
+<div class="badge-list" id="badgeList"></div>
+<div class="empty" id="emptyMessage">No badges earned yet! Complete puzzles or daily quests to unlock.</div>
+
+<script>
+  // Get badges from localStorage
+  let badges = JSON.parse(localStorage.getItem("badges")) || [];
+
+  const badgeList = document.getElementById("badgeList");
+  const emptyMessage = document.getElementById("emptyMessage");
+
+  if (badges.length > 0) {
+    emptyMessage.style.display = "none"; // Hide empty message
+
+    badges.forEach(badge => {
+      // Create card
+      const card = document.createElement("div");
+      card.classList.add("badge-card");
+
+      // Badge icon
+      const icon = document.createElement("div");
+      icon.classList.add("badge-icon");
+      icon.textContent = "🏅";
+
+      // Badge name
+      const name = document.createElement("h3");
+      name.textContent = badge.name;
+
+      // Badge source
+      const source = document.createElement("div");
+      source.classList.add("badge-source");
+      source.textContent = `Earned from: ${badge.source}`;
+
+      // Append all to card
+      card.appendChild(icon);
+      card.appendChild(name);
+      card.appendChild(source);
+
+      // Add card to badge list
+      badgeList.appendChild(card);
+    });
+  }
+</script>
+
+</body>
+</html>
