@@ -1,0 +1,379 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Soil Pollution Quiz</title>
+<style>
+  :root{
+    --bg:#121212;
+    --panel1:#0b1220;
+    --muted:#94a3b8;
+    --accent1:linear-gradient(90deg,#4facfe 0%,#00f2fe 100%);
+    --accent2:linear-gradient(90deg,#43e97b 0%,#38f9d7 100%);
+    --accent3:linear-gradient(90deg,#f093fb 0%,#f5576c 100%);
+    --accent4:linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+    --accent5:linear-gradient(90deg,#f6d365 0%,#fda085 100%);
+  }
+
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Roboto,Arial,sans-serif;color:#fff}
+  header{background:#1e1e1e;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.6);display:flex;align-items:center;gap:16px;justify-content:space-between}
+  header h1{font-size:18px;margin:0}
+  .points-badge{background:#0b84ff;padding:8px 12px;border-radius:999px;font-weight:700;color:#fff;font-size:14px}
+
+  main{display:flex;gap:20px;padding:18px;box-sizing:border-box;align-items:flex-start;min-height:calc(100% - 80px)}
+  /* Left: levels list */
+  .levels-wrap{
+    flex:0 0 420px;
+    max-width:420px;
+    width:100%;
+    position:relative;
+  }
+  .levels-container{
+    height:calc(100vh - 140px);
+    overflow:auto;
+    padding:20px 16px;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    scroll-behavior:smooth;
+  }
+
+  /* fade overlays */
+  .levels-wrap::before,
+  .levels-wrap::after{
+    content:"";
+    position:fixed;
+    left:0;
+    right:0;
+    height:56px;
+    pointer-events:none;
+    z-index:6;
+  }
+  .levels-wrap::before{top:68px;background:linear-gradient(to bottom,var(--bg),transparent);}
+  .levels-wrap::after{bottom:0;background:linear-gradient(to top,var(--bg),transparent);}
+
+  .level-box{
+    border-radius:12px;
+    padding:14px;
+    min-height:86px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-weight:800;
+    font-size:18px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.6);
+    cursor:pointer;
+    transform-origin:center;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .level-box:hover{transform:scale(1.03);box-shadow:0 10px 26px rgba(0,0,0,0.7)}
+  .level-box:active{transform:scale(0.98)}
+
+  /* gradient classes */
+  .g1{background:var(--accent1)}
+  .g2{background:var(--accent2)}
+  .g3{background:var(--accent3)}
+  .g4{background:var(--accent4)}
+  .g5{background:var(--accent5)}
+  .level-inner{background:rgba(0,0,0,0.12);padding:10px;border-radius:8px;color:#fff;width:100%}
+
+  /* Right: question area */
+  .panel{
+    flex:1 1 auto;
+    max-width:1000px;
+    width:100%;
+    background:linear-gradient(180deg,var(--panel1),#0f1724);
+    border-radius:12px;
+    padding:20px;
+    box-sizing:border-box;
+    box-shadow:0 10px 40px rgba(2,6,23,0.6);
+  }
+  .tip-box{background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-bottom:14px;color:#bfe8ff;font-style:italic}
+  .question-title{font-size:20px;font-weight:800;margin:6px 0 12px;color:#e6eef6}
+  .question-text{color:#cbd5e1;margin-bottom:14px}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .option-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);color:#fff;padding:12px;border-radius:10px;text-align:left;cursor:pointer;transition:background .12s}
+  .option-btn:hover{background:rgba(255,255,255,0.05)}
+  .controls{display:flex;gap:10px;margin-top:14px;align-items:center}
+  .back-btn,.completed-btn{padding:10px 14px;border-radius:10px;border: none;cursor:pointer}
+  .back-btn{background:#ef4444;color:#fff;border-radius:10px}
+  .completed-btn{background:#10b981;color:#fff;border-radius:10px}
+  .points-line{margin-top:12px;color:var(--muted);font-size:14px}
+
+  /* popup overlay */
+  .popup-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.45);backdrop-filter:blur(4px);z-index:9999}
+  .popup{background:linear-gradient(180deg,#0b1220,#121827);color:#fff;padding:20px 26px;border-radius:12px;box-shadow:0 12px 40px rgba(2,6,23,0.6);font-weight:700}
+
+  @media (max-width: 980px){
+    main{flex-direction:column;padding:14px}
+    .levels-wrap{width:100%;flex-basis:auto;max-width:none}
+    .levels-container{height:40vh}
+    .panel{margin-top:14px}
+  }
+  @media (max-width:520px){
+    .level-box{min-height:72px;font-size:16px}
+    .level-inner{padding:8px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1 style="margin:0;font-size:18px">Soil Pollution Quiz</h1>
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="points-badge" id="pointsBadge">Points: 0</div>
+  </div>
+</header>
+
+<main>
+  <div class="levels-wrap">
+    <div class="levels-container" id="levels"></div>
+  </div>
+
+  <section class="panel" id="panel">
+    <div id="panelContent">
+      <div class="placeholder" style="color:#8b98a9">
+        <p style="margin:0 0 8px 0;font-weight:700">Select a level on the left to start</p>
+        <p style="margin:0">Tip appears above the question. Correct answers give +3 points and auto-advance.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Popup overlay -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup" id="popupText">+3 points</div>
+</div>
+
+<script>
+const levelsContainer = document.getElementById('levels');
+const panelContent = document.getElementById('panelContent');
+const popupOverlay = document.getElementById('popupOverlay');
+const popupText = document.getElementById('popupText');
+const pointsBadge = document.getElementById('pointsBadge');
+
+let currentLevel = null;
+let totalPoints = 0;
+let answeredCorrect = {}; // track which levels have been answered correctly
+
+// 60 unique soil pollution questions with options, answer index, and tips
+const questions = [
+  {level:1, question:"Which is a major source of soil pollution in agricultural regions?", options:["Industrial dyes","Excessive pesticide & fertilizer use","Car exhaust","Light pollution"], answer:1, tip:"Overuse of pesticides and fertilizers leads to chemical build-up in soils."},
+  {level:2, question:"Which heavy metal often contaminates soils near battery disposal sites?", options:["Lead","Sodium","Potassium","Oxygen"], answer:0, tip:"Lead from batteries is toxic and can persist in soil for decades."},
+  {level:3, question:"What is 'soil salinization' primarily caused by?", options:["Excess irrigation and poor drainage","Too much compost","Freezing temperatures","Planting trees"], answer:0, tip:"Poor irrigation practices and evaporation concentrate salts in the soil."},
+  {level:4, question:"Which pollutant accumulates in soil from vehicle tyre wear and brake dust?", options:["Microplastics and heavy metals","Pure water","Sand","Nitrogen gas"], answer:0, tip:"Microparticles from tyres and brakes settle in roadside soils."},
+  {level:5, question:"Which industrial practice can lead to acid contamination of soil (acid mine drainage)?", options:["Coal and metal mining","Organic farming","Solar farming","Rainwater harvesting"], answer:0, tip:"Mining exposes sulphide minerals, producing acidic leachate that pollutes soils."},
+  {level:6, question:"Which persistent organic pollutant is known to accumulate in soils and food chains?", options:["PCBs (polychlorinated biphenyls)","Sodium chloride","Vitamin C","Carbon dioxide"], answer:0, tip:"PCBs are long-lived chemicals that bioaccumulate in soils and organisms."},
+  {level:7, question:"Which household item should never be dumped onto soil due to contamination risk?", options:["Used motor oil","Leaves","Compost","Clean water"], answer:0, tip:"Used motor oil contains toxic compounds that contaminate soil and water."},
+  {level:8, question:"Which agricultural practice helps reduce soil contamination by pesticides?", options:["Integrated Pest Management (IPM)","Spraying more frequently","Clear-cutting","Burning crop residues"], answer:0, tip:"IPM reduces chemical use by combining biological and cultural methods."},
+  {level:9, question:"What is the primary environmental risk of soil contaminated with pathogens (from sewage)?", options:["Spread of disease to humans/animals","Improved soil color","Faster plant growth","Less erosion"], answer:0, tip:"Pathogen-laden soils can transmit disease if crops or water are contaminated."},
+  {level:10, question:"Which phenomenon is a sign that soil is contaminated by industrial runoff?", options:["Dead vegetation or reduced plant growth","Greener grass","More worms","Higher crop yield"], answer:0, tip:"Industrial runoff often kills vegetation and reduces soil productivity."},
+  {level:11, question:"Which contaminant is particularly harmful because it bioaccumulates in crops and animals?", options:["Mercury","Pure oxygen","Sand","Nitrogen gas"], answer:0, tip:"Mercury moves up food chains and is toxic to humans and wildlife."},
+  {level:12, question:"Which practice prevents soil contamination from construction sites?", options:["Erosion control and sediment traps","Dumping rubble into streams","Removing all vegetation","Using unlined pits"], answer:0, tip:"Silt fences, sediment basins and good site management reduce pollution."},
+  {level:13, question:"Which soil parameter indicates chemical contamination (e.g., heavy metals, acidity)?", options:["pH and specific chemical tests","Odor only","Soil color only","Texture only"], answer:0, tip:"pH shifts and chemical assays reveal contamination types and levels."},
+  {level:14, question:"Which human activity increases microplastic presence in soils?", options:["Applying sewage sludge/biosolids to farmland","Planting cover crops","Using compost","Mulching sensibly"], answer:0, tip:"Biosolids and contaminated compost may introduce microplastics to soils."},
+  {level:15, question:"Which land use change often increases soil contamination risk?", options:["Industrial expansion and waste dumping","Establishing parks","Restoring wetlands","Planting forests"], answer:0, tip:"Industrial expansion and improper disposal create hotspot contamination."},
+  {level:16, question:"Which soil remediation technique uses plants to accumulate contaminants?", options:["Phytoremediation","Incineration","Chemical neutralization","Paving over"], answer:0, tip:"Some plants can uptake metals and are used to clean polluted soils."},
+  {level:17, question:"Which contaminant is common in soils near intensive livestock operations?", options:["Antibiotics and nutrient (nitrogen) overload","Pure sand","Natural compost","Ocean salts"], answer:0, tip:"Manure and waste can add nutrients and antibiotic residues to soils."},
+  {level:18, question:"Which policy helps reduce urban soil pollution from illegal dumping?", options:["Strict enforcement and community reporting","No rules","More dumping sites","Increase littering"], answer:0, tip:"Enforcement and reporting discourage illegal waste dumping."},
+  {level:19, question:"Which household disposal action prevents soil contamination?", options:["Take used oil to recycling centers","Pour oil in garden","Dump paint in storm drain","Burn plastic in yard"], answer:0, tip:"Proper disposal of hazardous household waste prevents soil contamination."},
+  {level:20, question:"Which pollutant from landfills can leach into and contaminate nearby soil?", options:["Leachate containing heavy metals and organics","Pure oxygen","Only sand","Nothing"], answer:0, tip:"Landfill leachate contains toxins that can infiltrate soils and groundwater."},
+  {level:21, question:"Which soil condition is caused by excessive irrigation and results in degraded crop growth?", options:["Waterlogging and salinization","Better crop yield","More microbes","Stronger roots"], answer:0, tip:"Waterlogged soils and salt buildup both reduce crop productivity."},
+  {level:22, question:"Which industrial waste can release harmful solvents into soil?", options:["Solvent-based paints and degreasers","Organic compost only","Pure water","Sand"], answer:0, tip:"Improper disposal of solvents contaminates soils and groundwater."},
+  {level:23, question:"Which toxicity symptom might show up in plants grown in contaminated soil?", options:["Stunted growth and chlorosis","Faster growth","Larger leaves only","No effect"], answer:0, tip:"Contaminant stress often causes stunted, yellowing plants."},
+  {level:24, question:"Which technique is commonly used to test for heavy metals in soil?", options:["Laboratory chemical analysis (ICP-MS)","Smelling the soil","Looking at soil color only","Measuring temperature"], answer:0, tip:"Instrumental analysis like ICP-MS provides precise metal concentrations."},
+  {level:25, question:"Which agricultural measure limits chemical runoff into soils and waterways?", options:["Buffer strips and contour farming","Applying more chemicals","Clear-cutting","Removing hedgerows"], answer:0, tip:"Vegetated buffers slow runoff and trap pollutants before they reach soils."},
+  {level:26, question:"Which contaminant reduces soil fertility by altering microbial communities?", options:["Persistent pesticides","Fresh compost","Clean water","Sand"], answer:0, tip:"Persistent pesticides can damage beneficial soil microbes and functions."},
+  {level:27, question:"Which source often leads to soil nitrate contamination?", options:["Excess fertilizer and leaking septic systems","Planting trees","Rain only","Wind erosion"], answer:0, tip:"Leaching from overfertilized fields and failing septic systems increases nitrates."},
+  {level:28, question:"Which remediation approach physically removes contaminated soil from a site?", options:["Excavation and off-site disposal","Planting grass","Irrigation only","Mulching"], answer:0, tip:"Excavation physically eliminates the contaminated medium but requires safe disposal."},
+  {level:29, question:"Which organic pollutant is notably persistent in soils and hazardous?", options:["PAHs (polycyclic aromatic hydrocarbons)","Table sugar","Vitamin C","Oxygen"], answer:0, tip:"PAHs from combustion are persistent and toxic in soils."},
+  {level:30, question:"Which soil practice helps prevent erosion and reduce spread of contaminants?", options:["Cover cropping and mulching","Leaving soil bare","Frequent ploughing during rains","Clear-cutting"], answer:0, tip:"Cover crops protect soil from erosion and limit contaminant transport."},
+  {level:31, question:"Which urban activity often contaminates garden soils with lead?", options:["Use of leaded gasoline historically and peeling paint","Only modern electric cars","Drinking water","Clouds"], answer:0, tip:"Legacy lead from gasoline and paint can remain in urban soils."},
+  {level:32, question:"Which waste type adds high organic load but may be treated before land application?", options:["Sewage sludge (biosolids)","Pure sand","Glass","Metal"], answer:0, tip:"Properly treated biosolids can be reused but must be managed to avoid contamination."},
+  {level:33, question:"Which action reduces risk of spreading contaminants from a polluted site?", options:["Installing containment barriers and capping","Driving through it","Playing on it","Spreading contaminants"] , answer:0, tip:"Containment prevents contaminants from migrating to surrounding soils."},
+  {level:34, question:"Which contaminant is commonly associated with electronic waste dumped on land?", options:["Cadmium and lead","Pure oxygen","Sand","Rainwater"], answer:0, tip:"E-waste can release cadmium, lead, and other toxic metals into soils."},
+  {level:35, question:"Which natural process can help reduce some organic pollutants in soil?", options:["Biodegradation by microbes","Freezing","Sunlight only","Wind"], answer:0, tip:"Microbial biodegradation can break down some contaminants under suitable conditions."},
+  {level:36, question:"Which agricultural chemical can remain and persist in soils for many years?", options:["Certain organochlorine pesticides (e.g., DDT)","Water","Compost","Oxygen"], answer:0, tip:"Organochlorines persist and are environmentally problematic long-term."},
+  {level:37, question:"Which indicator helps show if soil has been affected by sewage contamination?", options:["High fecal coliform counts","Bright green color","Low temperature","High sand content"], answer:0, tip:"Microbial indicators reveal sewage input risks to health."},
+  {level:38, question:"Which practice reduces transfer of soil contaminants into crops?", options:["Raised beds and clean topsoil","Plant directly in contaminated soil without testing","Pouring oil on soil","No maintenance"], answer:0, tip:"Using clean soil layers and barriers reduces uptake into edible crops."},
+  {level:39, question:"Which contaminant is a concern from road runoff to adjacent soils?", options:["Polycyclic aromatic hydrocarbons (PAHs)","Pure sugar","Oxygen","Bicarbonate"], answer:0, tip:"Road runoff carries PAHs, metals, and salts that accumulate in roadside soils."},
+  {level:40, question:"Which household product contributes to soil pollution if spilled outdoors?", options:["Herbicides & pesticides","Fresh water","Mulch","Compost"], answer:0, tip:"Garden chemicals are toxic to non-target organisms and soils if misused."},
+  {level:41, question:"What is 'bioavailability' in soil pollution context?", options:["Fraction of a contaminant that organisms can absorb","Amount of sunlight","Soil temperature only","Soil color"], answer:0, tip:"Bioavailability determines risk and whether contaminants can enter food chains."},
+  {level:42, question:"Which method reduces volatile organic compound (VOC) contamination in soil?", options:["Soil vapor extraction (SVE)","Adding more VOCs","Ignorance","Watering heavily"], answer:0, tip:"SVE extracts vapors from soil, commonly used for petrol-related contamination."},
+  {level:43, question:"Which pollutant often results from irrigation with saline water?", options:["Soil salinity build-up","Lower pH only","More microbes","Better yield always"], answer:0, tip:"Saline irrigation water increases salt accumulation harming crops."},
+  {level:44, question:"Which of these is a long-term effect of heavy metal soil contamination?", options:["Reduced microbial diversity and crop safety","Instant clean soil","Immediate plant growth boost","No effect"], answer:0, tip:"Heavy metals harm soil organisms and make crops unsafe."},
+  {level:45, question:"Which community action helps reduce soil pollution locally?", options:["Organizing clean-up and proper disposal programs","Burning waste in open","Dumping illegally","No action"], answer:0, tip:"Community cleanup and proper disposal reduce local soil contamination."},
+  {level:46, question:"Which industrial residue frequently contaminates soils around tanneries?", options:["Chromium salts","Salt only","Sand","Water"], answer:0, tip:"Tanneries often discharge chromium compounds which are toxic."},
+  {level:47, question:"Which approach uses plants to stabilise contaminated soils and prevent spread?", options:["Phytostabilization","Ploughing heavily","Removing all vegetation","Adding salt"], answer:0, tip:"Some plants immobilize contaminants and reduce erosion and spread."},
+  {level:48, question:"Which monitoring technique can provide ongoing soil contamination data?", options:["Sensor networks and periodic sampling","Only looking at plants","Smell test only","Visual cracks"], answer:0, tip:"Regular monitoring tracks changes and detects new pollution events early."},
+  {level:49, question:"Which practice helps protect soils from oil spills near industrial sites?", options:["Immediate containment and removal","Letting oil soak in","No response","Plant seeds immediately"], answer:0, tip:"Quick containment and removal reduce long-term soil impacts."},
+  {level:50, question:"Which agricultural amendment can sometimes immobilize certain metals in soils?", options:["Adding organic matter and liming","Adding more metal salts","Removing all organic matter","Burning the field"], answer:0, tip:"Organic matter and pH adjustment can reduce metal mobility."},
+  {level:51, question:"Which contaminant in soils can increase groundwater contamination risk?", options:["High nitrate concentrations","Pure oxygen","Clean sand","Good compost"], answer:0, tip:"Nitrates move easily to groundwater and threaten drinking supplies."},
+  {level:52, question:"Which human activity often contaminates soils with petroleum hydrocarbons?", options:["Fuel storage leaks and illegal dumping","Planting trees","Composting","Organic gardening"], answer:0, tip:"Leaking tanks and spills are common hydrocarbon sources in soils."},
+  {level:53, question:"Which waste management practice reduces soil contamination risk at the source?", options:["Separate collection and recycling of hazardous wastes","Mixing all wastes together","Open dumping","Uncontrolled burning"], answer:0, tip:"Proper segregation and recycling prevent hazardous materials entering soils."},
+  {level:54, question:"Which contaminant is commonly associated with agricultural insecticide misuse?", options:["Neonicotinoids harming pollinators and persisting","Vitamin C","Water only","Salt"], answer:0, tip:"Some insecticides persist and affect non-target life and soil health."},
+  {level:55, question:"Which remediation method uses microbes to degrade contaminants in situ?", options:["Bioremediation","Covering with concrete","Adding heavy metals","Removing vegetation"], answer:0, tip:"Bioremediation harnesses microbes to break down organics in soil."},
+  {level:56, question:"Which long-term land use can reduce soil contamination risk?", options:["Restoration to wetlands and natural habitats","Concentrated dumping","Industrial sprawl","Permanent paving"], answer:0, tip:"Restoration increases natural filtration and resilience of soils."},
+  {level:57, question:"Which contaminant group from tanning, dyes, and textiles is concerning in soils?", options:["Azo dyes and associated chemicals","Pure water","Soil nutrients","Oxygen"], answer:0, tip:"Textile dyes can be toxic and persist in soils if improperly disposed."},
+  {level:58, question:"Which simple action householders can take to protect soil quality?", options:["Use phosphate-free detergents and dispose chemicals properly","Pour chemicals down storm drains","Burn hazardous waste in garden","Dump oils on soil"], answer:0, tip:"Using safer products and proper disposal reduces household pollution inputs."},
+  {level:59, question:"Which soil property affects how quickly contaminants move through it?", options:["Permeability and texture","Color only","Shape of stones","Time of day"], answer:0, tip:"Sandy, permeable soils allow faster contaminant transport than clay soils."},
+  {level:60, question:"Which national measure reduces soil pollution at scale?", options:["Strong regulations for waste disposal and industrial discharge","No regulation","Promote dumping","Reduce monitoring"], answer:0, tip:"Regulation, monitoring and enforcement are key to preventing widespread soil pollution."}
+];
+
+// Build level boxes with gradients and tips preview
+const gradientClasses = ['g1','g2','g3','g4','g5'];
+questions.forEach((q, idx) => {
+  const box = document.createElement('div');
+  box.className = 'level-box ' + gradientClasses[idx % gradientClasses.length];
+  box.dataset.level = q.level;
+  const shortTip = q.tip.length > 70 ? q.tip.slice(0,66) + '...' : q.tip;
+  box.innerHTML = `<div class="level-inner"><div style="font-weight:900">Level ${q.level}</div><div style="margin-top:8px;font-weight:600;font-size:13px;opacity:.95">${shortTip}</div></div>`;
+  box.addEventListener('click', ()=> openQuestion(q.level));
+  levelsContainer.appendChild(box);
+});
+
+function openQuestion(level){
+  currentLevel = level;
+  const q = questions.find(o => o.level === level);
+  if(!q) return;
+  // Build panel UI
+  panelContent.innerHTML = '';
+  const tip = document.createElement('div'); tip.className = 'tip-box'; tip.textContent = '💡 ' + q.tip;
+  const title = document.createElement('div'); title.className = 'question-title'; title.textContent = `Level ${level}`;
+  const qtxt = document.createElement('div'); qtxt.className = 'question-text'; qtxt.textContent = q.question;
+  const optionsWrap = document.createElement('div'); optionsWrap.className = 'options';
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerText = opt;
+    btn.onclick = () => handleOption(idx);
+    optionsWrap.appendChild(btn);
+  });
+
+  const controls = document.createElement('div'); controls.className = 'controls';
+  const completedBtn = document.createElement('button'); completedBtn.className = 'completed-btn';
+  completedBtn.textContent = '✅ Completed';
+  completedBtn.style.display = answeredCorrect[level] ? 'inline-block' : 'none';
+  completedBtn.onclick = () => alert(`You marked Level ${level} as completed.`);
+  const backBtn = document.createElement('button'); backBtn.className = 'back-btn';
+  backBtn.textContent = '⬅ Back';
+  backBtn.onclick = () => {
+    panelContent.innerHTML = `<div class="placeholder" style="color:#8b98a9">
+      <p style="margin:0 0 8px 0;font-weight:700">Select a level on the left to start</p>
+      <p style="margin:0">Tip appears above the question. Correct answers give +3 points and auto-advance.</p>
+    </div>`;
+    currentLevel = null;
+    // scroll back to top
+    document.querySelector('.levels-container').scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  controls.appendChild(completedBtn);
+  controls.appendChild(backBtn);
+
+  const pointsLine = document.createElement('div'); pointsLine.className = 'points-line';
+  pointsLine.textContent = `Points: ${totalPoints}`;
+
+  panelContent.appendChild(tip);
+  panelContent.appendChild(title);
+  panelContent.appendChild(qtxt);
+  panelContent.appendChild(optionsWrap);
+  panelContent.appendChild(controls);
+  panelContent.appendChild(pointsLine);
+
+  // ensure selected level visible in list center
+  setTimeout(()=> scrollToLevel(level), 100);
+}
+
+function handleOption(selectedIdx){
+  if(currentLevel === null) return;
+  const q = questions.find(o => o.level === currentLevel);
+  if(!q) return;
+  if(selectedIdx === q.answer){
+    totalPoints += 3;
+    pointsBadge.textContent = `Points: ${totalPoints}`;
+    localStorage.setItem('soil_points', totalPoints); // Save points for Soil Pollution
+    answeredCorrect[currentLevel] = true;
+    showPopup('✅ Correct! +3 points');
+    // reveal completed button
+    const cb = panelContent.querySelector('.completed-btn');
+    if(cb) cb.style.display = 'inline-block';
+    setTimeout(()=> {
+      hidePopup();
+      if(currentLevel < questions.length){
+        openQuestion(currentLevel + 1);
+        scrollToLevel(currentLevel + 1);
+      } else {
+        showPopup(`🎉 You completed all levels! Total Points: ${totalPoints}`);
+        setTimeout(()=> hidePopup(), 2200);
+      }
+    }, 1200);
+  } else {
+    showPopup('❌ Wrong! Try again.');
+    setTimeout(()=> hidePopup(), 900);
+  }
+}
+
+function showPopup(message){
+  popupText.innerText = message;
+  popupOverlay.style.display = 'flex';
+}
+function hidePopup(){ popupOverlay.style.display = 'none'; }
+
+function scrollToLevel(level){
+  const container = document.querySelector('.levels-container');
+  const el = container.querySelector(`[data-level='${level}']`);
+  if(el){
+    const top = el.offsetTop - container.clientHeight/2 + el.clientHeight/2;
+    container.scrollTo({ top, behavior: 'smooth' });
+  }
+}
+
+/* keyboard navigation: up/down + Enter to select within levels list */
+document.addEventListener('keydown', (e)=>{
+  const container = document.querySelector('.levels-container');
+  const focusable = Array.from(container.querySelectorAll('.level-box'));
+  if(!focusable.length) return;
+  let activeIdx = focusable.findIndex(el => el.classList.contains('active-level'));
+  if(activeIdx === -1) {
+    const center = container.scrollTop + container.clientHeight/2;
+    let nearest = 0; let minDist = Infinity;
+    focusable.forEach((el, idx)=>{ const d = Math.abs((el.offsetTop+el.clientHeight/2)-center); if(d<minDist){minDist=d;nearest=idx;}});
+    activeIdx = nearest;
+    focusable[activeIdx].classList.add('active-level');
+  }
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    focusable[activeIdx].classList.remove('active-level');
+    const next = Math.min(activeIdx+1, focusable.length-1);
+    focusable[next].classList.add('active-level');
+    focusable[next].scrollIntoView({behavior:'smooth',block:'center'});
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    focusable[activeIdx].classList.remove('active-level');
+    const prev = Math.max(activeIdx-1, 0);
+    focusable[prev].classList.add('active-level');
+    focusable[prev].scrollIntoView({behavior:'smooth',block:'center'});
+  } else if(e.key === 'Enter'){
+    e.preventDefault();
+    const active = container.querySelector('.active-level');
+    if(active) openQuestion(Number(active.dataset.level));
+  }
+});
+
+/* remove active-level when clicking elsewhere */
+document.addEventListener('click', (ev)=>{
+  if(ev.target.closest('.level-box')) return;
+  const active = document.querySelector('.active-level');
+  if(active) active.classList.remove('active-level');
+});
+
+/* small initial scroll */
+setTimeout(()=> {
+  const container = document.querySelector('.levels-container');
+  if(container) container.scrollTo({ top: 1, behavior: 'smooth' });
+}, 300);
+</script>
+</body>
+</html>

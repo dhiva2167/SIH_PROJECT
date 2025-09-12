@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Noise Pollution Quiz (HTML/CSS/JS)</title>
+<style>
+  :root{
+    --bg:#121212;
+    --card:#1f1f1f;
+    --muted:#a8a8a8;
+    --accent1:linear-gradient(90deg,#4facfe 0%,#00f2fe 100%);
+    --accent2:linear-gradient(90deg,#43e97b 0%,#38f9d7 100%);
+    --accent3:linear-gradient(90deg,#f093fb 0%,#f5576c 100%);
+    --accent4:linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+    --accent5:linear-gradient(90deg,#f6d365 0%,#fda085 100%);
+  }
+
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Roboto,Arial,sans-serif;color:#fff}
+  header{background:#1e1e1e;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.6);display:flex;align-items:center;gap:16px;justify-content:space-between}
+  header h1{font-size:18px;margin:0}
+  .points-badge{background:#0b84ff;padding:8px 12px;border-radius:999px;font-weight:700;color:#fff;font-size:14px}
+
+  main{display:flex;gap:20px;padding:18px;box-sizing:border-box;align-items:flex-start;min-height:calc(100% - 80px)}
+  /* Left: levels list */
+  .levels-wrap{
+    flex:0 0 420px;
+    max-width:420px;
+    width:100%;
+    position:relative;
+  }
+  .levels-container{
+    height:calc(100vh - 140px);
+    overflow:auto;
+    padding:20px 16px;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    scroll-behavior:smooth;
+  }
+
+  /* fade overlays */
+  .levels-wrap::before,
+  .levels-wrap::after{
+    content:"";
+    position:fixed;
+    left:0;
+    right:0;
+    height:56px;
+    pointer-events:none;
+    z-index:6;
+  }
+  .levels-wrap::before{top:68px;background:linear-gradient(to bottom,var(--bg),transparent);}
+  .levels-wrap::after{bottom:0;background:linear-gradient(to top,var(--bg),transparent);}
+
+  .level-box{
+    border-radius:12px;
+    padding:14px;
+    min-height:86px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-weight:700;
+    font-size:18px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.6);
+    cursor:pointer;
+    transform-origin:center;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .level-box:hover{transform:scale(1.03);box-shadow:0 10px 26px rgba(0,0,0,0.7)}
+  .level-box:active{transform:scale(0.98)}
+
+  /* gradient classes */
+  .g1{background:var(--accent1)}
+  .g2{background:var(--accent2)}
+  .g3{background:var(--accent3)}
+  .g4{background:var(--accent4)}
+  .g5{background:var(--accent5)}
+  .level-inner{background:rgba(0,0,0,0.12);padding:10px;border-radius:8px;color:#fff;width:100%}
+
+  /* Right: question area */
+  .panel{
+    flex:1 1 auto;
+    max-width:900px;
+    width:100%;
+    background:linear-gradient(180deg,#0f1724,#0b1220);
+    border-radius:12px;
+    padding:20px;
+    box-sizing:border-box;
+    box-shadow:0 10px 40px rgba(2,6,23,0.6);
+  }
+  .tip-box{background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-bottom:14px;color:#bfe8ff;font-style:italic}
+  .question-title{font-size:18px;font-weight:800;margin:4px 0 10px;color:#e6eef6}
+  .question-text{color:#cbd5e1;margin-bottom:14px}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .option-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);color:#fff;padding:12px;border-radius:10px;text-align:left;cursor:pointer;transition:background .12s}
+  .option-btn:hover{background:rgba(255,255,255,0.05)}
+  .controls{display:flex;gap:10px;margin-top:14px;align-items:center}
+  .back-btn,.completed-btn{padding:10px 14px;border-radius:10px;border:0;color:#fff;cursor:pointer}
+  .back-btn{background:#ef4444}
+  .completed-btn{background:#10b981}
+  .points-line{margin-top:12px;color:#94a3b8;font-size:14px}
+
+  /* popup overlay */
+  .popup-overlay{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(2,6,23,0.4);backdrop-filter:blur(4px);z-index:9999}
+  .popup{background:linear-gradient(180deg,#0b1220,#121827);padding:22px 28px;border-radius:12px;color:#fff;font-weight:800;box-shadow:0 18px 40px rgba(2,6,23,0.6);font-size:18px;text-align:center;min-width:220px}
+
+  /* responsive */
+  @media (max-width: 980px){
+    main{flex-direction:column;padding:14px}
+    .levels-wrap{width:100%;flex-basis:auto;max-width:none}
+    .levels-container{height:40vh}
+    .panel{margin-top:14px}
+  }
+  @media (max-width:520px){
+    .level-box{min-height:72px;font-size:16px}
+    .level-inner{padding:8px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1 style="margin:0;font-size:18px">Noise Pollution Quiz</h1>
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="points-badge" id="pointsBadge">Points: 0</div>
+  </div>
+</header>
+
+<main>
+  <div class="levels-wrap">
+    <div class="levels-container" id="levels"></div>
+  </div>
+
+  <section class="panel" id="panel">
+    <div id="panelContent">
+      <div class="placeholder" style="color:#8b98a9">
+        <p style="margin:0 0 8px 0;font-weight:700">Select a level on the left to start</p>
+        <p style="margin:0">Tip will appear above the question. Correct answers give +3 points and auto-advance to the next level.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Popup -->
+<div class="popup-overlay" id="popupOverlay" aria-hidden="true">
+  <div class="popup" id="popupText">+3 points</div>
+</div>
+
+<script>
+/* -------------------------
+   Questions array (60 unique)
+   Each: { level, question, options[], answer (index 0-3), tip }
+   ------------------------- */
+const questions = [
+  {level:1, question:"What is the biggest source of noise pollution in most cities?", options:["Birds chirping","Traffic and vehicle horns","Wind","Tree rustling"], answer:1, tip:"Traffic (engines, horns) is the primary source of urban noise."},
+  {level:2, question:"Which unit is used to measure sound intensity?", options:["Lumens","Decibels (dB)","Watts","Candela"], answer:1, tip:"Sound is measured in decibels (dB)."},
+  {level:3, question:"Prolonged exposure above which decibel level can damage hearing?", options:["50 dB","85 dB","100 dB","40 dB"], answer:1, tip:"Long exposure to >85 dB can cause hearing loss over time."},
+  {level:4, question:"What indoor material reduces echo best?", options:["Tiles","Carpets and curtains","Glass","Concrete"], answer:1, tip:"Soft materials like carpets and curtains absorb sound."},
+  {level:5, question:"Which profession often faces high noise exposure?", options:["Construction worker","Librarian","Baker","Teacher"], answer:0, tip:"Construction workers are frequently exposed to loud machinery."},
+  {level:6, question:"Night-time noise most commonly disrupts what?", options:["Digestion","Sleep","Sight","Taste"], answer:1, tip:"Noise at night disturbs sleep and harms health."},
+  {level:7, question:"Which natural barrier helps reduce road noise?", options:["Tree belts","Open water","Bare soil","Metal fences"], answer:0, tip:"Vegetation and tree lines absorb and scatter sound."},
+  {level:8, question:"Which festival activity often causes short-term high noise levels?", options:["Parades","Firecrackers","Lighting candles","Flower offerings"], answer:1, tip:"Firecrackers produce very loud brief noises."},
+  {level:9, question:"Which animal is known to be strongly affected by noise pollution?", options:["Owls","Goldfish","Snails","Bees"], answer:0, tip:"Nocturnal birds like owls are disturbed by human noise."},
+  {level:10, question:"What immediate symptom can occur after a sudden loud noise?", options:["Ringing in ears (tinnitus)","Stronger vision","Faster growth","Improved hearing"], answer:0, tip:"Sudden loud noise can cause temporary tinnitus."},
+  {level:11, question:"Which device do you use to measure workplace noise?", options:["Thermometer","Sound level meter","Barometer","Speedometer"], answer:1, tip:"A sound level meter measures decibel levels."},
+  {level:12, question:"Which community solution reduces highway noise for neighbours?", options:["Sound barriers","Painting the road","More signage","Extra lighting"], answer:0, tip:"Acoustic barriers help shield nearby homes from traffic noise."},
+  {level:13, question:"Which listening habit can increase personal noise risk?", options:["Low-volume listening","High-volume headphones","Silence","Reading aloud"], answer:1, tip:"Loud headphone use over time damages hearing."},
+  {level:14, question:"Which transport mode tends to be quieter per passenger?", options:["Motorcycle","Single car","Electric train","Truck"], answer:2, tip:"Electric trains typically have lower noise per passenger."},
+  {level:15, question:"What long-term health impact is linked to chronic noise?", options:["Improved concentration","Hearing loss and stress","Better sleep","Stronger immunity"], answer:1, tip:"Chronic noise contributes to stress and hearing damage."},
+  {level:16, question:"What building upgrade helps reduce external noise?", options:["Single-pane windows","Double/triple-glazed windows","Open vents","No doors"], answer:1, tip:"Double/triple glazing reduces outdoor noise entry."},
+  {level:17, question:"Which vehicle modification commonly increases noise?", options:["Quieter muffler","Loud aftermarket exhaust","Sound insulation","Electric conversion"], answer:1, tip:"Modified or faulty exhausts often make vehicles louder."},
+  {level:18, question:"Many cities limit loud activities during which hours?", options:["Morning only","22:00–06:00 (night)","Lunch time","Afternoon only"], answer:1, tip:"Night-time quiet hours protect sleep and rest."},
+  {level:19, question:"Which design element reduces noise between rooms?", options:["Thin drywall","Sound insulation and seals","No doors","Glass partitions"], answer:1, tip:"Proper insulation and seals block sound transfer."},
+  {level:20, question:"Noise barriers work by which primary mechanism?", options:["Amplifying sound","Absorbing and reflecting sound","Turning sound to light","Removing air"], answer:1, tip:"Barriers absorb and redirect sound away from sensitive areas."},
+  {level:21, question:"Which on-site measure reduces machinery noise in factories?", options:["No maintenance","Silencers and maintenance","Open windows","Louder machines"], answer:1, tip:"Regular maintenance and mufflers lower machine noise."},
+  {level:22, question:"Chronic noise is linked to increases in what biomarker?", options:["Vitamin D","Cortisol (stress hormone)","Hemoglobin","Calcium"], answer:1, tip:"Noise can raise stress hormones like cortisol."},
+  {level:23, question:"Which urban planning choice reduces residential noise exposure?", options:["Mix noisy industry with homes","Separate industrial zones","Place homes beside highways","Remove green spaces"], answer:1, tip:"Zoning separates noisy uses away from homes."},
+  {level:24, question:"Which protective equipment reduces individual noise exposure?", options:["Gloves","Earplugs or earmuffs","Sunglasses","Helmet"], answer:1, tip:"Approved earplugs/earmuffs protect hearing on-site."},
+  {level:25, question:"Short bursts of very loud sound can cause what?", options:["Temporary hearing threshold shift","Permanent eye damage","Bone fracture","Better hearing"], answer:0, tip:"Brief extreme noise can temporarily reduce hearing ability."},
+  {level:26, question:"Which traffic behavior increases neighborhood noise?", options:["No horn usage","Excessive honking","Slow driving","Carpooling"], answer:1, tip:"Excessive horn use raises community noise levels."},
+  {level:27, question:"Road surface that increases rolling noise is usually:", options:["Smooth asphalt","Porous asphalt","Cobblestones","Grass"], answer:2, tip:"Rough cobblestones cause higher tyre noise."},
+  {level:28, question:"What aviation measure reduces noise over communities?", options:["Louder engines","Night flight restrictions and routing","More flights at night","Open-cockpit planes"], answer:1, tip:"Flight path design and curfews reduce aircraft noise impacts."},
+  {level:29, question:"Which household behavior lowers disturbance to neighbours?", options:["Playing loud music outdoors","Use headphones","Chopping wood late night","Frequent door slams"], answer:1, tip:"Headphones keep sound personal and reduce community noise."},
+  {level:30, question:"Which public body is typically responsible for noise policies?", options:["Health or environmental authorities","Only libraries","Private shops only","No one"], answer:0, tip:"Public health and environment departments oversee noise rules."},
+  {level:31, question:"Which green solution helps both noise and heat mitigation?", options:["Concrete paving","Tree canopy and shrubs","More parking","Open concrete courtyards"], answer:1, tip:"Green infrastructure cools areas and dampens sound."},
+  {level:32, question:"Which indoor change reduces footstep noise in apartments?", options:["Hard floors only","Rugs and felt pads under furniture","Removing carpets","Open windows"], answer:1, tip:"Rugs and pads reduce transmitted impact noise."},
+  {level:33, question:"Which tool maps noise across a city effectively?", options:["Decibel sensors network","Thermometer array","Light sensors","Speed cameras"], answer:0, tip:"Distributed sound sensors enable detailed noise mapping."},
+  {level:34, question:"Permits and curfews for loud events are examples of:", options:["Noise abatement policies","Tax measures","Education only","Parking rules"], answer:0, tip:"Permits and curfews help regulate event noise timing/levels."},
+  {level:35, question:"Which group is especially vulnerable to noise impacts?", options:["Young children","Only elderly","Only animals","None"], answer:0, tip:"Children's learning and sleep can be harmed by noise."},
+  {level:36, question:"Classroom noise is best reduced by:", options:["Hard floors","Acoustic panels and quiet HVAC","Removing doors","Loud fans"], answer:1, tip:"Acoustics and quiet ventilation improve learning spaces."},
+  {level:37, question:"Lawn mowing early in the morning primarily affects:", options:["Wildlife only","Neighbours and sleep","Traffic flow","Air quality"], answer:1, tip:"Early lawn care can disturb neighbours' sleep."},
+  {level:38, question:"Occupational exposure depends on:", options:["Sound level only","Duration and sound level (cumulative)","Only job title","Only age"], answer:1, tip:"Both intensity and duration determine risk."},
+  {level:39, question:"Which change helps nocturnal wildlife near cities?", options:["Increase night noise","Introduce night quiet hours","More lights","Amplified music"], answer:1, tip:"Night-time quiet supports nocturnal species."},
+  {level:40, question:"Least disruptive indoor sound is usually:", options:["Power drill","Soft conversation","Alarm siren","Concert music"], answer:1, tip:"Soft conversation is less harmful than machinery or alarms."},
+  {level:41, question:"Which transport policy reduces road noise overall?", options:["Encourage carpooling","Encourage single occupancy cars","Ban public transit","Increase honking"], answer:0, tip:"Fewer vehicles reduce total traffic noise."},
+  {level:42, question:"Narrow urban 'canyon' streets amplify sound due to:", options:["Absorptive facades","Parallel reflective walls","Vegetation","Open fields"], answer:1, tip:"Parallel hard surfaces reflect and trap sound."},
+  {level:43, question:"Quiet zones near hospitals are implemented via:", options:["Noise bylaws and buffers","Opening more stores","Louder sirens","No changes"], answer:0, tip:"Legal noise limits protect sensitive facilities."},
+  {level:44, question:"Which retrofit reduces external noise and improves comfort?", options:["Single-pane windows","Double/triple glazing","Open vents","Metal sheeting"], answer:1, tip:"Upgrading glazing is an effective retrofit."},
+  {level:45, question:"Appliance that creates bursts of loud noise is:", options:["Blender","Lamp","Pillow","Picture frame"], answer:0, tip:"Kitchen blenders generate short high-noise bursts."},
+  {level:46, question:"Scheduling fireworks into limited hours does what?", options:["Creates more disturbance overall","Reduces spread of disturbance","Always prevents noise","Has no effect"], answer:1, tip:"Designated times minimise community disturbance."},
+  {level:47, question:"Idling restrictions near schools aim to:", options:["Increase noise","Reduce noise and pollution","Promote idling","No effect"], answer:1, tip:"Reducing idling lowers local noise and emissions."},
+  {level:48, question:"Long-term noise exposure is associated with:", options:["Lower cortisol","Elevated stress hormones","Better circulation","Faster healing"], answer:1, tip:"Chronic noise raises stress hormones, affecting health."},
+  {level:49, question:"Which retrofit reduces exterior noise intrusion most?", options:["Single-pane","Double/triple glaze windows","Open windows","Metal cladding"], answer:1, tip:"Double/triple glazing significantly lowers incoming noise."},
+  {level:50, question:"Community noise reporting apps help by:", options:["Hiding noise problems","Allowing reporting and mapping","Increasing noise","No effect"], answer:1, tip:"Citizen reports help authorities identify hotspots."},
+  {level:51, question:"A sign a child is affected by noise might be:", options:["Better grades","Difficulty concentrating","Faster running","Higher appetite"], answer:1, tip:"Noise can harm attention and school performance."},
+  {level:52, question:"Industrial quietering typically requires:", options:["Ignoring maintenance","Mufflers and routine maintenance","Louder testing","Removing guards"], answer:1, tip:"Engineering controls and maintenance reduce machine noise."},
+  {level:53, question:"Airport noise exposure can be reduced with:", options:["Night curfews and routing","More night flights","Louder aircraft","No policy"], answer:0, tip:"Operational measures cut community exposure."},
+  {level:54, question:"Personal choice that lowers noise footprint:", options:["Frequent honking","Using public transit or carpooling","Open windows with loud music","Running engines idle"], answer:1, tip:"Shared transport reduces per-person noise."},
+  {level:55, question:"What tech is used for fine-grained urban noise maps?", options:["Sound sensor networks","Thermometers","Humidity sensors","Light meters"], answer:0, tip:"Distributed sound sensors create noise maps."},
+  {level:56, question:"Tunnels and cavities can:", options:["Cancel all noise","Amplify low-frequency sound","Prevent noise spread","Make no difference"], answer:1, tip:"Some structures carry and amplify low-frequency noise."},
+  {level:57, question:"Public messaging to reduce fireworks noise often asks:", options:["Encourage louder displays","Promote quieter alternatives","No messaging","Promote earlier starts"], answer:1, tip:"Quieter alternatives (laser/light shows) help cut impact."},
+  {level:58, question:"What do personal noise dosimeters measure?", options:["Light levels","Cumulative noise exposure","Temperature","Air pressure"], answer:1, tip:"Dosimeters record cumulative exposure across a shift."},
+  {level:59, question:"Which nocturnal bird is disturbed by city noise and lights?", options:["Owls","Daytime pigeons","Cows","Sparrows only"], answer:0, tip:"Owls and night wildlife are sensitive to urban disturbance."},
+  {level:60, question:"A small apartment action to cut noise is:", options:["Remove rugs","Use felt pads under furniture","Open windows loudly","Play music louder"], answer:1, tip:"Felt pads and rugs reduce impact noise from furniture/steps."}
+];
+
+/* -------------------------
+   Build level buttons with gradients
+   ------------------------- */
+const levelsEl = document.getElementById('levels');
+const gradientClasses = ['g1','g2','g3','g4','g5'];
+questions.forEach((q, idx) => {
+  const box = document.createElement('div');
+  box.className = 'level-box ' + gradientClasses[idx % gradientClasses.length];
+  box.dataset.level = q.level;
+  box.innerHTML = `<div class="level-inner"><div style="font-weight:900">Level ${q.level}</div><div style="margin-top:8px;font-weight:600;font-size:13px;opacity:.95">${q.question.slice(0,60)}${q.question.length>60?'...':''}</div></div>`;
+  box.addEventListener('click', ()=> openQuestion(q.level));
+  levelsEl.appendChild(box);
+});
+
+/* -------------------------
+   Panel rendering & logic
+   ------------------------- */
+const panelContent = document.getElementById('panelContent');
+const popupOverlay = document.getElementById('popupOverlay');
+const popupText = document.getElementById('popupText');
+const pointsBadge = document.getElementById('pointsBadge');
+
+let currentLevel = null;
+let totalPoints = 0;
+let answeredCorrect = {}; // track completed per-level
+
+function renderPanelPlaceholder(){
+  panelContent.innerHTML = `<div class="placeholder" style="color:#8b98a9">
+    <p style="margin:0 0 8px 0;font-weight:700">Select a level on the left to start</p>
+    <p style="margin:0">Tip appears above the question. Correct answers give +3 points and auto-advance.</p>
+  </div>`;
+}
+
+renderPanelPlaceholder();
+
+function openQuestion(level){
+  currentLevel = level;
+  const q = questions.find(x=>x.level===level);
+  if(!q) return;
+  // Build panel
+  panelContent.innerHTML = '';
+  const tip = document.createElement('div'); tip.className='tip-box'; tip.textContent = '💡 ' + q.tip;
+  const title = document.createElement('div'); title.className='question-title'; title.textContent = `Level ${q.level}`;
+  const qtxt = document.createElement('div'); qtxt.className='question-text'; qtxt.textContent = q.question;
+  const optionsWrap = document.createElement('div'); optionsWrap.className='options';
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className='option-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', ()=> handleAnswer(idx));
+    optionsWrap.appendChild(btn);
+  });
+  const controls = document.createElement('div'); controls.className='controls';
+  const completedBtn = document.createElement('button');
+  completedBtn.className='completed-btn';
+  completedBtn.style.display = answeredCorrect[level] ? 'inline-block' : 'none';
+  completedBtn.textContent = '✅ Completed';
+  completedBtn.addEventListener('click', ()=> {
+    alert(`You marked Level ${level} completed.`);
+  });
+  const backBtn = document.createElement('button');
+  backBtn.className='back-btn';
+  backBtn.textContent = '⬅ Back';
+  backBtn.addEventListener('click', ()=> {
+    renderPanelPlaceholder();
+    currentLevel = null;
+    // scroll levels back into view neatly
+    document.querySelector('.levels-container').scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  controls.appendChild(completedBtn);
+  controls.appendChild(backBtn);
+
+  const pointsLine = document.createElement('div');
+  pointsLine.className='points-line';
+  pointsLine.textContent = `Points: ${totalPoints}`;
+
+  panelContent.appendChild(tip);
+  panelContent.appendChild(title);
+  panelContent.appendChild(qtxt);
+  panelContent.appendChild(optionsWrap);
+  panelContent.appendChild(controls);
+  panelContent.appendChild(pointsLine);
+}
+
+/* answer handling */
+function showPopup(message){
+  popupText.textContent = message;
+  popupOverlay.style.display = 'flex';
+  // hide after delay handled by caller
+}
+
+function hidePopup(){
+  popupOverlay.style.display = 'none';
+}
+
+function handleAnswer(selectedIdx){
+  if(currentLevel == null) return;
+  const q = questions.find(x=>x.level===currentLevel);
+  if(!q) return;
+  const correct = (selectedIdx === q.answer);
+  if(correct){
+    totalPoints += 3;
+    pointsBadge.textContent = 'Points: ' + totalPoints;
+    localStorage.setItem('noise_points', totalPoints); // Save points for Noise Pollution
+
+    answeredCorrect[currentLevel] = true;
+    // show popup centered with blur
+    showPopup('✅ Correct! +3 points');
+    // reveal completed button (in panel)
+    const completedBtn = panelContent.querySelector('.completed-btn');
+    if(completedBtn) completedBtn.style.display = 'inline-block';
+    // after short pause, advance to next level or finish
+    setTimeout(()=> {
+      hidePopup();
+      if(currentLevel < questions.length){
+        openQuestion(currentLevel + 1);
+        // scroll left list to keep next visible
+        scrollToLevel(currentLevel+1);
+      } else {
+        // finished all
+        showPopup('🎉 You completed all levels! Total Points: ' + totalPoints);
+        setTimeout(()=> hidePopup(), 2000);
+      }
+    }, 1200);
+  } else {
+    // wrong
+    showPopup('❌ Wrong! Try again.');
+    setTimeout(()=> hidePopup(), 900);
+  }
+}
+
+function scrollToLevel(level){
+  const container = document.querySelector('.levels-container');
+  const el = container.querySelector(`[data-level='${level}']`);
+  if(el){
+    const top = el.offsetTop - container.clientHeight/2 + el.clientHeight/2;
+    container.scrollTo({ top, behavior: 'smooth' });
+  }
+}
+
+/* keyboard navigation: up/down + Enter to select within levels list */
+document.addEventListener('keydown', (e)=>{
+  const container = document.querySelector('.levels-container');
+  const focusable = Array.from(container.querySelectorAll('.level-box'));
+  if(!focusable.length) return;
+  // find index of currently visible/active (approx), fallback to 0
+  let activeIdx = focusable.findIndex(el => el.classList.contains('active-level'));
+  if(activeIdx === -1) {
+    // determine based on center of viewport
+    const center = container.scrollTop + container.clientHeight/2;
+    let nearest = 0; let minDist = Infinity;
+    focusable.forEach((el, idx)=>{ const d = Math.abs((el.offsetTop+el.clientHeight/2)-center); if(d<minDist){minDist=d;nearest=idx;}});
+    activeIdx = nearest;
+    focusable[activeIdx].classList.add('active-level');
+  }
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    focusable[activeIdx].classList.remove('active-level');
+    const next = Math.min(activeIdx+1, focusable.length-1);
+    focusable[next].classList.add('active-level');
+    focusable[next].scrollIntoView({behavior:'smooth',block:'center'});
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    focusable[activeIdx].classList.remove('active-level');
+    const prev = Math.max(activeIdx-1, 0);
+    focusable[prev].classList.add('active-level');
+    focusable[prev].scrollIntoView({behavior:'smooth',block:'center'});
+  } else if(e.key === 'Enter'){
+    e.preventDefault();
+    const active = container.querySelector('.active-level');
+    if(active) openQuestion(Number(active.dataset.level));
+  }
+});
+
+/* small UX: remove active-level marking when clicking elsewhere */
+document.addEventListener('click', (ev)=>{
+  if(ev.target.closest('.level-box')) return;
+  const active = document.querySelector('.active-level');
+  if(active) active.classList.remove('active-level');
+});
+
+/* initial scroll hint: smooth small scroll */
+setTimeout(()=> {
+  const container = document.querySelector('.levels-container');
+  if(container) container.scrollTo({ top: 1, behavior: 'smooth' });
+}, 300);
+</script>
+</body>
+</html>

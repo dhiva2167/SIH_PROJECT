@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eco-Lessons - Pollution Quiz Categories</title>
+<style>
+:root{
+  --bg:#121212;
+  --muted:#a8a8a8;
+  --accent1:linear-gradient(90deg,#4facfe 0%,#00f2fe 100%);
+  --accent2:linear-gradient(90deg,#43e97b 0%,#38f9d7 100%);
+  --accent3:linear-gradient(90deg,#f093fb 0%,#f5576c 100%);
+  --accent4:linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+  --accent5:linear-gradient(90deg,#f6d365 0%,#fda085 100%);
+}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:#fff;
+}
+
+header{
+  background:#1e1e1e;
+  padding:16px 20px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+header h1{
+  margin:0;
+  font-size:20px;
+}
+
+main{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:24px;
+  padding:24px;
+  min-height:calc(100vh - 80px);
+  box-sizing:border-box;
+}
+
+.category-box{
+  width:100%;
+  max-width:420px;
+  border-radius:12px;
+  padding:24px 20px;
+  text-align:center;
+  cursor:pointer;
+  transition:transform 0.2s, box-shadow 0.2s;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  font-weight:700;
+  box-shadow:0 6px 18px rgba(0,0,0,0.6);
+  background:var(--accent1);
+}
+
+.category-box:hover{
+  transform:scale(1.03);
+  box-shadow:0 10px 26px rgba(0,0,0,0.7);
+}
+
+.category-title{
+  font-size:18px;
+}
+
+.category-points{
+  font-size:14px;
+  color:#fff;
+  font-weight:600;
+}
+
+.g1{background:var(--accent1);}
+.g2{background:var(--accent2);}
+.g3{background:var(--accent3);}
+.g4{background:var(--accent4);}
+.g5{background:var(--accent5);}
+
+@media(max-width:520px){
+  .category-box{
+    padding:18px 14px;
+    font-size:16px;
+  }
+  .category-title{
+    font-size:16px;
+  }
+  .category-points{
+    font-size:12px;
+  }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Eco-Lessons - Pollution Quiz Categories</h1>
+</header>
+<main>
+  <div class="category-box g1" id="noiseQuiz">
+    <div class="category-title" >Noise Pollution</div>
+    <div class="category-points" id="noisePoints">Points: 0</div>
+  </div>
+
+  <div class="category-box g2" id="waterQuiz">
+    <div class="category-title">Water Pollution</div>
+    <div class="category-points" id="waterPoints">Points: 0</div>
+  </div>
+
+  <div class="category-box g3" id="soilQuiz">
+    <div class="category-title">Soil Pollution</div>
+    <div class="category-points" id="soilPoints">Points: 0</div>
+  </div>
+
+  <div class="category-box g4" id="airQuiz">
+    <div class="category-title">Air Pollution</div>
+    <div class="category-points" id="airPoints">Points: 0</div>
+  </div>
+
+  <div class="category-box g5" id="thermalQuiz">
+    <div class="category-title">Thermal Pollution</div>
+    <div class="category-points" id="thermalPoints">Points: 0</div>
+  </div>
+</main>
+
+<script>
+// Load points from localStorage
+document.getElementById('noisePoints').textContent = "Points: " + (localStorage.getItem('noise_points') || 0);
+document.getElementById('waterPoints').textContent = "Points: " + (localStorage.getItem('water_points') || 0);
+document.getElementById('soilPoints').textContent = "Points: " + (localStorage.getItem('soil_points') || 0);
+document.getElementById('airPoints').textContent = "Points: " + (localStorage.getItem('air_points') || 0);
+document.getElementById('thermalPoints').textContent = "Points: " + (localStorage.getItem('thermal_points') || 0);
+
+// Navigation to quiz pages
+document.getElementById('noiseQuiz').addEventListener('click', ()=> window.location.href='noise-pollution.html');
+document.getElementById('waterQuiz').addEventListener('click', ()=> window.location.href='water-pollution.html');
+document.getElementById('soilQuiz').addEventListener('click', ()=> window.location.href='soil-pollution.html');
+document.getElementById('airQuiz').addEventListener('click', ()=> window.location.href='air-pollution.html');
+document.getElementById('thermalQuiz').addEventListener('click', ()=> window.location.href='thermal-pollution.html');
+</script>
+</body>
+</html>

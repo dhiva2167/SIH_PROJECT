@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Water Pollution Quiz</title>
+<style>
+  :root{
+    --bg:#121212;
+    --panel1:#0b1220;
+    --muted:#94a3b8;
+    --accent1:linear-gradient(90deg,#4facfe 0%,#00f2fe 100%);
+    --accent2:linear-gradient(90deg,#43e97b 0%,#38f9d7 100%);
+    --accent3:linear-gradient(90deg,#f093fb 0%,#f5576c 100%);
+    --accent4:linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+    --accent5:linear-gradient(90deg,#f6d365 0%,#fda085 100%);
+  }
+
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Roboto,Arial,sans-serif;color:#fff}
+  header{background:#1e1e1e;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.6);display:flex;align-items:center;gap:16px;justify-content:space-between}
+  header h1{font-size:18px;margin:0}
+  .points-badge{background:#0b84ff;padding:8px 12px;border-radius:999px;font-weight:700;color:#fff;font-size:14px}
+
+  main{display:flex;gap:20px;padding:18px;box-sizing:border-box;align-items:flex-start;min-height:calc(100% - 80px)}
+  /* Left: levels list */
+  .levels-wrap{
+    flex:0 0 420px;
+    max-width:420px;
+    width:100%;
+    position:relative;
+  }
+  .levels-container{
+    height:calc(100vh - 140px);
+    overflow:auto;
+    padding:20px 16px;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    scroll-behavior:smooth;
+  }
+
+  /* fade overlays */
+  .levels-wrap::before,
+  .levels-wrap::after{
+    content:"";
+    position:fixed;
+    left:0;
+    right:0;
+    height:56px;
+    pointer-events:none;
+    z-index:6;
+  }
+  .levels-wrap::before{top:68px;background:linear-gradient(to bottom,var(--bg),transparent);}
+  .levels-wrap::after{bottom:0;background:linear-gradient(to top,var(--bg),transparent);}
+
+  .level-box{
+    border-radius:12px;
+    padding:14px;
+    min-height:86px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-weight:800;
+    font-size:18px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.6);
+    cursor:pointer;
+    transform-origin:center;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .level-box:hover{transform:scale(1.03);box-shadow:0 10px 26px rgba(0,0,0,0.7)}
+  .level-box:active{transform:scale(0.98)}
+
+  /* gradient classes */
+  .g1{background:var(--accent1)}
+  .g2{background:var(--accent2)}
+  .g3{background:var(--accent3)}
+  .g4{background:var(--accent4)}
+  .g5{background:var(--accent5)}
+  .level-inner{background:rgba(0,0,0,0.12);padding:10px;border-radius:8px;color:#fff;width:100%}
+
+  /* Right: question area */
+  .panel{
+    flex:1 1 auto;
+    max-width:1000px;
+    width:100%;
+    background:linear-gradient(180deg,var(--panel1),#0f1724);
+    border-radius:12px;
+    padding:20px;
+    box-sizing:border-box;
+    box-shadow:0 10px 40px rgba(2,6,23,0.6);
+  }
+  .tip-box{background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-bottom:14px;color:#bfe8ff;font-style:italic}
+  .question-title{font-size:20px;font-weight:800;margin:6px 0 12px;color:#e6eef6}
+  .question-text{color:#cbd5e1;margin-bottom:14px}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .option-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);color:#fff;padding:12px;border-radius:10px;text-align:left;cursor:pointer;transition:background .12s}
+  .option-btn:hover{background:rgba(255,255,255,0.05)}
+  .controls{display:flex;gap:10px;margin-top:14px;align-items:center}
+  .back-btn,.completed-btn{padding:10px 14px;border-radius:10px;border: none;cursor:pointer}
+  .back-btn{background:#ef4444;color:#fff;border-radius:10px}
+  .completed-btn{background:#10b981;color:#fff;border-radius:10px}
+  .points-line{margin-top:12px;color:var(--muted);font-size:14px}
+
+  /* popup overlay */
+  .popup-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.45);backdrop-filter:blur(4px);z-index:9999}
+  .popup{background:linear-gradient(180deg,#0b1220,#121827);color:#fff;padding:20px 26px;border-radius:12px;box-shadow:0 12px 40px rgba(2,6,23,0.6);font-weight:700}
+
+  @media (max-width: 980px){
+    main{flex-direction:column;padding:14px}
+    .levels-wrap{width:100%;flex-basis:auto;max-width:none}
+    .levels-container{height:40vh}
+    .panel{margin-top:14px}
+  }
+  @media (max-width:520px){
+    .level-box{min-height:72px;font-size:16px}
+    .level-inner{padding:8px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1 style="margin:0;font-size:18px">Water Pollution Quiz</h1>
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="points-badge" id="pointsBadge">Points: 0</div>
+  </div>
+</header>
+
+<main>
+  <div class="levels-wrap">
+    <div class="levels-container" id="levels"></div>
+  </div>
+
+  <section class="panel" id="panel">
+    <div id="panelContent">
+      <div class="placeholder" style="color:#8b98a9">
+        <p style="margin:0 0 8px 0;font-weight:700">Select a level on the left to start</p>
+        <p style="margin:0">Tip will appear above the question. Correct answers give +3 points and auto-advance to the next level.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Popup -->
+<div class="popup-overlay" id="popupOverlay" aria-hidden="true">
+  <div class="popup" id="popupText">+3 points</div>
+</div>
+
+<script>
+/* -------------------------
+   60 unique Water Pollution questions (each with 4 options, answer index, and a tip)
+   ------------------------- */
+const questions = [
+  {level:1, question:"Which is the largest global source of water pollution?", options:["Industrial discharge","Agricultural runoff","Household garbage","Sewage only"], answer:1, tip:"Agricultural runoff (fertilizers, pesticides) is a leading global cause of water pollution."},
+  {level:2, question:"Which chemical in fertilizers causes algal blooms?", options:["Nitrates","Calcium","Sodium","Helium"], answer:0, tip:"Excess nitrates stimulate algal blooms that disrupt aquatic ecosystems."},
+  {level:3, question:"What is eutrophication?", options:["Sunlight increase","Nutrient overload causing oxygen depletion","Fish migration","Evaporation acceleration"], answer:1, tip:"Eutrophication occurs when excess nutrients cause algal growth and oxygen loss."},
+  {level:4, question:"Which pollutant is especially harmful to marine animals when ingested?", options:["Biodegradable food","Microplastics","Dissolved oxygen","Sand"], answer:1, tip:"Microplastics are ingested by wildlife and accumulate in food chains."},
+  {level:5, question:"Which practice helps reduce agricultural runoff?", options:["Excess fertilizer use","Buffer strips (vegetation near fields)","Burning fields","Draining wetlands"], answer:1, tip:"Buffer strips and cover crops reduce runoff into waterways."},
+  {level:6, question:"Which is a common source of oil pollution in oceans?", options:["Natural springs only","Ship spills and runoff","Only rainwater","Freshwater streams"], answer:1, tip:"Shipping accidents and operational discharges cause significant oil pollution."},
+  {level:7, question:"Which measurement indicates oxygen level in water?", options:["pH","Dissolved oxygen (DO)","Turbidity only","Salinity"], answer:1, tip:"Dissolved oxygen levels show how much oxygen aquatic life can use."},
+  {level:8, question:"Which effect does thermal pollution have on aquatic ecosystems?", options:["Increased oxygen","Reduced oxygen and stressed species","No effect","Plants grow faster only"], answer:1, tip:"Warmer water holds less oxygen, stressing fish and other species."},
+  {level:9, question:"Which disease spreads through contaminated water?", options:["Cholera","Tuberculosis","Chickenpox","Measles"], answer:0, tip:"Cholera is a waterborne disease linked to contaminated drinking water."},
+  {level:10, question:"Which substance commonly contaminates groundwater from landfills?", options:["Nitrate and heavy metals","Vitamin C","Pure oxygen","Salt only"], answer:0, tip:"Leachate from landfills can carry nitrates and heavy metals into groundwater."},
+  {level:11, question:"Which industrial activity often releases heavy metals into water?", options:["Textile dyeing","Baking bread","Book printing","Fruit farming"], answer:0, tip:"Textile and metal plating industries can release heavy metals and dyes."},
+  {level:12, question:"What does turbidity measure in water?", options:["Temperature","Clarity (suspended particles)","pH level","Oxygen content"], answer:1, tip:"Turbidity indicates how clear water is; high turbidity affects aquatic plants."},
+  {level:13, question:"Which organism can bloom and produce toxins in polluted water?", options:["Green algae","Toxigenic cyanobacteria (blue-green algae)","Earthworms","Lichens"], answer:1, tip:"Cyanobacterial blooms produce toxins harmful to humans and animals."},
+  {level:14, question:"Which household chemical should never be poured down drains?", options:["Used motor oil","Plain water","Distilled water","Baking soda"], answer:0, tip:"Used motor oil contains contaminants that harm water systems and wildlife."},
+  {level:15, question:"Which action reduces plastic waste entering rivers?", options:["Single-use plastics","Proper recycling & reusable items","Throwing plastics in storm drains","Burning all plastics"], answer:1, tip:"Recycling and switching to reusables cut plastic pollution at the source."},
+  {level:16, question:"Which agricultural chemical is a major groundwater contaminant?", options:["Pesticides and nitrates","Pure oxygen","Silica","Natural sand"], answer:0, tip:"Nitrates and persistent pesticides can leach into groundwater supplies."},
+  {level:17, question:"Which method helps treat sewage before discharge?", options:["Direct dumping","Primary/secondary wastewater treatment","No treatment","Open burning"], answer:1, tip:"Proper sewage treatment removes organic load and pathogens before release."},
+  {level:18, question:"Which pollutant can bioaccumulate in fish and harm humans who eat them?", options:["Microplastics only","Mercury and PCBs","Dissolved oxygen","Calcium"], answer:1, tip:"Mercury and PCBs concentrate up the food chain and pose health risks."},
+  {level:19, question:"Which practice reduces runoff from urban surfaces?", options:["Impermeable paving","Green roofs and permeable pavements","More concrete","Larger parking lots"], answer:1, tip:"Green roofs and permeable surfaces help absorb rainwater and reduce runoff."},
+  {level:20, question:"Which is a source of nutrient pollution from urban areas?", options:["Street litter only","Stormwater runoff carrying pet waste and lawn fertilizer","Wind","Sunlight"], answer:1, tip:"Stormwater carries pet waste and fertilizers into water bodies, adding nutrients."},
+  {level:21, question:"Which chemical increases acidity in water bodies near acid mine drainage?", options:["Sulfuric acid (sulfates)","Baking soda","Calcium carbonate","Pure water"], answer:0, tip:"Acid mine drainage releases sulfates and heavy metals, lowering pH."},
+  {level:22, question:"Which monitoring parameter warns of sewage contamination?", options:["High dissolved oxygen","High fecal coliform bacteria counts","Low temperature","Clear water"], answer:1, tip:"Fecal coliform or E. coli indicate fecal contamination and health risk."},
+  {level:23, question:"Which sustainable practice helps farmers reduce runoff?", options:["Overhead burning","Contour farming and buffer strips","Ploughing every day","Using more chemical fertilizer"], answer:1, tip:"Contour farming and buffers slow water flow and trap sediments."},
+  {level:24, question:"Which industrial waste stream is a major source of chemical pollution in rivers?", options:["Food scraps","Toxic effluents (solvents, heavy metals)","Air emissions only","Paper towels"], answer:1, tip:"Industrial effluents often contain harmful solvents and metals requiring treatment."},
+  {level:25, question:"Which household habit prevents contamination of storm drains?", options:["Pouring paint down the drain","Pouring used oil in the bin","Washing toxic chemicals into storm sewers","Reporting illegal discharges"], answer:3, tip:"Report illegal dumping and avoid pouring hazardous liquids into drains."},
+  {level:26, question:"Which aquatic effect results from oxygen depletion?", options:["Vibrant fish life","Fish kills and loss of biodiversity","Crystal clear water","More aquatic plants"], answer:1, tip:"Low oxygen causes mass fish kills and loss of sensitive species."},
+  {level:27, question:"Which pollutant commonly comes from sewage and agricultural runoff?", options:["Excess nutrients (N and P)","Pure oxygen","Sand","Glass"], answer:0, tip:"Nitrogen and phosphorus from sewage and farms fuel eutrophication."},
+  {level:28, question:"Which treatment step removes most suspended solids?", options:["Primary settling","UV disinfection","Chlorination only","Aeration"], answer:0, tip:"Primary settling (sedimentation) removes settleable solids before further treatment."},
+  {level:29, question:"Which river management action helps reduce contamination spread?", options:["Removing wetlands","Restoring wetlands","Widening channels","Sealing riverbanks with concrete only"], answer:1, tip:"Wetlands act as natural filters and buffers, trapping pollutants."},
+  {level:30, question:"What is point-source pollution?", options:["Diffuse runoff from many areas","Single identifiable discharge (pipe)","Natural rainfall","Wind transport"], answer:1, tip:"Point-source pollution comes from a single, identifiable source like a pipe."},
+  {level:31, question:"What is non-point source pollution?", options:["A discrete factory discharge","Diffuse sources like runoff from farms","A single sewage outlet","A leaking sink"], answer:1, tip:"Non-point pollution comes from broad areas and is harder to control directly."},
+  {level:32, question:"Which contaminant is commonly associated with pharmaceutical pollution in water?", options:["Antibiotic residues","Sand","Pure oxygen","Rock fragments"], answer:0, tip:"Pharmaceutical residues, including antibiotics, reach waterways via runoff and wastewater."},
+  {level:33, question:"Which simple household step reduces water pollution risk?", options:["Dumping chemicals down sink","Proper disposal of medicines and oils","Pouring paint into gutter","Flushing plastics"], answer:1, tip:"Take medicines to take-back programs and properly recycle oils and paints."},
+  {level:34, question:"Which condition encourages harmful algal blooms in lakes?", options:["Low nutrients","High nutrients and warm temperatures","Freezing","High dissolved oxygen"], answer:1, tip:"Warm, nutrient-rich water promotes harmful algal bloom formation."},
+  {level:35, question:"Which contaminant is most persistent and hard to remove from water?", options:["Dissolved oxygen","Persistent organic pollutants (POPs) like PCBs","Temporary foam","Natural salts"], answer:1, tip:"POPs are chemically stable and bioaccumulate, making removal difficult."},
+  {level:36, question:"Which practice helps lower sediment entering streams?", options:["Strip-mining near streams","Reforestation and riparian buffers","Removing vegetation","Building more roads"], answer:1, tip:"Maintaining vegetation near streams prevents erosion and sediment load."},
+  {level:37, question:"Which industry commonly contributes thermal pollution?", options:["Power plants that use cooling water","Shoe stores","Book publishers","Bakeries"], answer:0, tip:"Power plants often discharge warmer water, raising local temperatures."},
+  {level:38, question:"Which test detects heavy metal contamination?", options:["pH test","Specific chemical analyses like ICP-MS","Turbidity only","Color observation"], answer:1, tip:"Laboratory methods such as ICP-MS detect and quantify heavy metals."},
+  {level:39, question:"Which contaminant increases toxicity in aquatic food chains?", options:["Dissolved oxygen","Mercury","Pure water","Sand"], answer:1, tip:"Mercury bioaccumulates and magnifies through food webs."},
+  {level:40, question:"Which measure would reduce plastic in rivers most effectively?", options:["One-time clean up","Preventing plastic at source (ban/reuse)","Increasing incineration only","Dumping in oceans"], answer:1, tip:"Reducing single-use plastics and improving waste collection cuts river plastic loads."},
+  {level:41, question:"Which water treatment step kills pathogens?", options:["Sedimentation only","Disinfection (chlorine/UV)","Heating to boiling only","Filtering with sand only"], answer:1, tip:"Disinfection methods (chlorine, UV) inactivate many pathogens."},
+  {level:42, question:"Why is groundwater contamination particularly concerning?", options:["Groundwater is infinite","It is hard to detect and slow to clean","Always safe","It evaporates quickly"], answer:1, tip:"Groundwater moves slowly and remediation is difficult and costly."},
+  {level:43, question:"Which urban activity loads nutrients into waterways?", options:["Planting trees","Washing cars in driveways with detergent","No washing","Using only water-based paints"], answer:1, tip:"Washing cars can send detergents and oils into storm drains and streams."},
+  {level:44, question:"Which pollutant reduces light penetration in water and harms plants?", options:["Turbidity / suspended sediments","Pure oxygen","Vitamin levels","Sound"], answer:0, tip:"High turbidity blocks light, reducing photosynthesis in aquatic plants."},
+  {level:45, question:"Which effect does untreated sewage have on coastal zones?", options:["Increased recreation","Pathogen loads and eutrophication","Improved fisheries always","Clear water"], answer:1, tip:"Untreated sewage brings pathogens and nutrients that harm coastal ecosystems."},
+  {level:46, question:"Which farming practice lowers pesticide runoff?", options:["Excess spraying","Integrated pest management (IPM)","Clear-cutting","Flooding fields intentionally"], answer:1, tip:"IPM reduces reliance on chemical pesticides and runoff risk."},
+  {level:47, question:"Which contaminant source is typical near mining areas?", options:["Heavy metals and acidic drainage","Only organic waste","Pure water springs","Sand dunes"], answer:0, tip:"Mining can produce acid mine drainage with heavy metals contaminating water."},
+  {level:48, question:"Which policy reduces agricultural water pollution?", options:["No regulation","Incentives for best management practices","Encouraging more fertilizer use","Removing buffer rules"], answer:1, tip:"Incentives encourage farmers to adopt conservation practices that reduce runoff."},
+  {level:49, question:"Which metric indicates a healthy aquatic ecosystem?", options:["Very low biodiversity","High dissolved oxygen and biodiversity","No plants","Very warm water"], answer:1, tip:"Healthy systems typically have good oxygen levels and diverse species."},
+  {level:50, question:"Which household product contributes to aquatic toxicity if disposed carelessly?", options:["Household bleach and solvents","Plain paper","Tap water","Table salt"], answer:0, tip:"Bleach and solvents can be toxic to aquatic life if they reach water bodies."},
+  {level:51, question:"Which action best prevents oil from reaching waterways?", options:["Dumping oil in storm drains","Proper oil recycling & disposal","Pouring oil on ground","Burning oil in yards"], answer:1, tip:"Collect and recycle used oil at designated facilities."},
+  {level:52, question:"Which natural event can mobilize pollutants into rivers?", options:["Floods and heavy rains","Cloud shadows","Full moons only","Light breezes"], answer:0, tip:"Storms and floods wash stored pollutants into waterways quickly."},
+  {level:53, question:"Which monitoring helps early detection of pollution events?", options:["Regular water sampling and sensor networks","Waiting for fish kills","Random guessing","Only visual checks"], answer:0, tip:"Continuous monitoring detects spikes and enables rapid response."},
+  {level:54, question:"Which urban practice helps reduce sewer overflow events?", options:["Disconnecting roof drains to soakaways","Dumping trash into sewers","Building more impermeable surfaces","Leaving gutters clogged"], answer:0, tip:"Redirecting stormwater reduces load on sewers during storms."},
+  {level:55, question:"What is bioremediation in water treatment?", options:["Using microbes to degrade pollutants","Filtering with plastic only","Adding more chemicals","Removing all life"], answer:0, tip:"Bioremediation uses bacteria or plants to break down contaminants naturally."},
+  {level:56, question:"Which nutrient controls algal growth if reduced?", options:["Phosphorus","Gold","Sand","Helium"], answer:0, tip:"Reducing phosphorus inputs often limits algal blooms in freshwater systems."},
+  {level:57, question:"Which human activity commonly causes groundwater nitrates?", options:["Excess fertilization and leaking septic systems","Solar panels","Tree planting","Reading books"], answer:0, tip:"Nitrate leaching from fertilizer and septic failure contaminates groundwater."},
+  {level:58, question:"Why is microplastic pollution a concern for drinking water?", options:["They purify water","Potential chemical carriers and unknown health effects","They improve taste","They filter bacteria"], answer:1, tip:"Microplastics can carry pollutants and their health effects are still under study."},
+  {level:59, question:"Which coastal action reduces pollutant flow from land to sea?", options:["Restoring estuaries and wetlands","Blocking rivers entirely","Dumping more waste","Paving over wetlands"], answer:0, tip:"Wetland restoration improves filtration and reduces pollutant export to coasts."},
+  {level:60, question:"A simple action households can do to reduce water pollution is:", options:["Pour paint into drains","Use phosphate-free detergent and proper disposal","Dump oils in sinks","Flush medicines"], answer:1, tip:"Choose phosphate-free products and dispose hazardous waste properly."}
+];
+
+/* -------------------------
+   Build level buttons with gradients
+   ------------------------- */
+const levelsEl = document.getElementById('levels');
+const gradientClasses = ['g1','g2','g3','g4','g5'];
+questions.forEach((q, idx) => {
+  const box = document.createElement('div');
+  box.className = 'level-box ' + gradientClasses[idx % gradientClasses.length];
+  box.dataset.level = q.level;
+  // include a short preview of the tip inside the box (keeps consistent with your earlier preference)
+  const shortTip = q.tip.length > 70 ? q.tip.slice(0,66) + '...' : q.tip;
+  box.innerHTML = `<div class="level-inner"><div style="font-weight:900">Level ${q.level}</div><div style="margin-top:8px;font-weight:600;font-size:13px;opacity:.95">${shortTip}</div></div>`;
+  box.addEventListener('click', ()=> openQuestion(q.level));
+  levelsEl.appendChild(box);
+});
+
+/* -------------------------
+   Panel rendering & logic
+   ------------------------- */
+const panelContent = document.getElementById('panelContent');
+const popupOverlay = document.getElementById('popupOverlay');
+const popupText = document.getElementById('popupText');
+const pointsBadge = document.getElementById('pointsBadge');
+
+let currentLevel = null;
+let totalPoints = 0;
+let answeredCorrect = {}; // track completed per-level
+
+function renderPanelPlaceholder(){
+  panelContent.innerHTML = `<div class="placeholder" style="color:#8b98a9">
+    <p style="margin:0 0 8px 0;font-weight:700">Select a level on the left to start</p>
+    <p style="margin:0">Tip appears above the question. Correct answers give +3 points and auto-advance.</p>
+  </div>`;
+}
+renderPanelPlaceholder();
+
+function openQuestion(level){
+  currentLevel = level;
+  const q = questions.find(x=>x.level===level);
+  if(!q) return;
+  // Build panel
+  panelContent.innerHTML = '';
+  const tip = document.createElement('div'); tip.className='tip-box'; tip.textContent = '💡 ' + q.tip;
+  const title = document.createElement('div'); title.className='question-title'; title.textContent = `Level ${q.level}`;
+  const qtxt = document.createElement('div'); qtxt.className='question-text'; qtxt.textContent = q.question;
+  const optionsWrap = document.createElement('div'); optionsWrap.className='options';
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className='option-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', ()=> handleAnswer(idx));
+    optionsWrap.appendChild(btn);
+  });
+  const controls = document.createElement('div'); controls.className='controls';
+  const completedBtn = document.createElement('button');
+  completedBtn.className='completed-btn';
+  completedBtn.style.display = answeredCorrect[level] ? 'inline-block' : 'none';
+  completedBtn.textContent = '✅ Completed';
+  completedBtn.addEventListener('click', ()=> {
+    alert(`You marked Level ${level} completed.`);
+  });
+  const backBtn = document.createElement('button');
+  backBtn.className='back-btn';
+  backBtn.textContent = '⬅ Back';
+  backBtn.addEventListener('click', ()=> {
+    renderPanelPlaceholder();
+    currentLevel = null;
+    document.querySelector('.levels-container').scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  controls.appendChild(completedBtn);
+  controls.appendChild(backBtn);
+
+  const pointsLine = document.createElement('div');
+  pointsLine.className='points-line';
+  pointsLine.textContent = `Points: ${totalPoints}`;
+
+  panelContent.appendChild(tip);
+  panelContent.appendChild(title);
+  panelContent.appendChild(qtxt);
+  panelContent.appendChild(optionsWrap);
+  panelContent.appendChild(controls);
+  panelContent.appendChild(pointsLine);
+
+  // scroll left list so the selected level is centered
+  setTimeout(()=> scrollToLevel(level), 120);
+}
+
+/* answer handling */
+function showPopup(message){
+  popupText.textContent = message;
+  popupOverlay.style.display = 'flex';
+}
+function hidePopup(){
+  popupOverlay.style.display = 'none';
+}
+
+function handleAnswer(selectedIdx){
+  if(currentLevel == null) return;
+  const q = questions.find(x=>x.level===currentLevel);
+  if(!q) return;
+  const correct = (selectedIdx === q.answer);
+  if(correct){
+    totalPoints += 3;
+    pointsBadge.textContent = 'Points: ' + totalPoints;
+    localStorage.setItem('water_points', totalPoints); // Save points for Water Pollution
+
+    answeredCorrect[currentLevel] = true;
+    // show popup centered with blur
+    showPopup('✅ Correct! +3 points');
+    // reveal completed button (in panel)
+    const completedBtn = panelContent.querySelector('.completed-btn');
+    if(completedBtn) completedBtn.style.display = 'inline-block';
+    // after short pause, advance to next level or finish
+    setTimeout(()=> {
+      hidePopup();
+      if(currentLevel < questions.length){
+        openQuestion(currentLevel + 1);
+        scrollToLevel(currentLevel + 1);
+      } else {
+        // finished all
+        showPopup('🎉 You completed all levels! Total Points: ' + totalPoints);
+        setTimeout(()=> hidePopup(), 2200);
+      }
+    }, 1200);
+  } else {
+    showPopup('❌ Wrong! Try again.');
+    setTimeout(()=> hidePopup(), 900);
+  }
+}
+
+function scrollToLevel(level){
+  const container = document.querySelector('.levels-container');
+  const el = container.querySelector(`[data-level='${level}']`);
+  if(el){
+    const top = el.offsetTop - container.clientHeight/2 + el.clientHeight/2;
+    container.scrollTo({ top, behavior: 'smooth' });
+  }
+}
+
+/* keyboard navigation: up/down + Enter to select within levels list */
+document.addEventListener('keydown', (e)=>{
+  const container = document.querySelector('.levels-container');
+  const focusable = Array.from(container.querySelectorAll('.level-box'));
+  if(!focusable.length) return;
+  // find index of currently active
+  let activeIdx = focusable.findIndex(el => el.classList.contains('active-level'));
+  if(activeIdx === -1) {
+    // choose nearest to viewport center
+    const center = container.scrollTop + container.clientHeight/2;
+    let nearest = 0; let minDist = Infinity;
+    focusable.forEach((el, idx)=>{ const d = Math.abs((el.offsetTop+el.clientHeight/2)-center); if(d<minDist){minDist=d;nearest=idx;}});
+    activeIdx = nearest;
+    focusable[activeIdx].classList.add('active-level');
+  }
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    focusable[activeIdx].classList.remove('active-level');
+    const next = Math.min(activeIdx+1, focusable.length-1);
+    focusable[next].classList.add('active-level');
+    focusable[next].scrollIntoView({behavior:'smooth',block:'center'});
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    focusable[activeIdx].classList.remove('active-level');
+    const prev = Math.max(activeIdx-1, 0);
+    focusable[prev].classList.add('active-level');
+    focusable[prev].scrollIntoView({behavior:'smooth',block:'center'});
+  } else if(e.key === 'Enter'){
+    e.preventDefault();
+    const active = container.querySelector('.active-level');
+    if(active) openQuestion(Number(active.dataset.level));
+  }
+});
+
+/* remove active-level marking when clicking elsewhere */
+document.addEventListener('click', (ev)=>{
+  if(ev.target.closest('.level-box')) return;
+  const active = document.querySelector('.active-level');
+  if(active) active.classList.remove('active-level');
+});
+
+/* small initial scroll to hint scrollability */
+setTimeout(()=> {
+  const container = document.querySelector('.levels-container');
+  if(container) container.scrollTo({ top: 1, behavior: 'smooth' });
+}, 300);
+</script>
+</body>
+</html>

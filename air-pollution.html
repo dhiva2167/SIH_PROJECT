@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Air Pollution Quiz (HTML/CSS/JS)</title>
+<style>
+  :root{
+    --bg:#121212;
+    --card:#1f1f1f;
+    --muted:#a8a8a8;
+    --accent1:linear-gradient(90deg,#4facfe 0%,#00f2fe 100%);
+    --accent2:linear-gradient(90deg,#43e97b 0%,#38f9d7 100%);
+    --accent3:linear-gradient(90deg,#f093fb 0%,#f5576c 100%);
+    --accent4:linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+    --accent5:linear-gradient(90deg,#f6d365 0%,#fda085 100%);
+  }
+
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Roboto,Arial,sans-serif;color:#fff}
+  header{background:#1e1e1e;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.6);display:flex;align-items:center;gap:16px;justify-content:space-between}
+  header h1{font-size:18px;margin:0}
+  .points-badge{background:#0b84ff;padding:8px 12px;border-radius:999px;font-weight:700;color:#fff;font-size:14px}
+
+  main{display:flex;gap:20px;padding:18px;box-sizing:border-box;align-items:flex-start;min-height:calc(100% - 80px)}
+  .levels-wrap{flex:0 0 420px;max-width:420px;width:100%;position:relative;}
+  .levels-container{height:calc(100vh - 140px);overflow:auto;padding:20px 16px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;}
+
+  .levels-wrap::before,
+  .levels-wrap::after{content:"";position:fixed;left:0;right:0;height:56px;pointer-events:none;z-index:6;}
+  .levels-wrap::before{top:68px;background:linear-gradient(to bottom,var(--bg),transparent);}
+  .levels-wrap::after{bottom:0;background:linear-gradient(to top,var(--bg),transparent);}
+
+  .level-box{border-radius:12px;padding:14px;min-height:86px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:18px;box-shadow:0 6px 18px rgba(0,0,0,0.6);cursor:pointer;transform-origin:center;transition:transform .18s ease, box-shadow .18s ease;}
+  .level-box:hover{transform:scale(1.03);box-shadow:0 10px 26px rgba(0,0,0,0.7)}
+  .level-box:active{transform:scale(0.98)}
+
+  .g1{background:var(--accent1)}
+  .g2{background:var(--accent2)}
+  .g3{background:var(--accent3)}
+  .g4{background:var(--accent4)}
+  .g5{background:var(--accent5)}
+  .level-inner{background:rgba(0,0,0,0.12);padding:10px;border-radius:8px;color:#fff;width:100%}
+
+  .panel{flex:1 1 auto;max-width:900px;width:100%;background:linear-gradient(180deg,#0f1724,#0b1220);border-radius:12px;padding:20px;box-sizing:border-box;box-shadow:0 10px 40px rgba(2,6,23,0.6);}
+  .tip-box{background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-bottom:14px;color:#bfe8ff;font-style:italic}
+  .question-title{font-size:18px;font-weight:800;margin:4px 0 10px;color:#e6eef6}
+  .question-text{color:#cbd5e1;margin-bottom:14px}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .option-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);color:#fff;padding:12px;border-radius:10px;text-align:left;cursor:pointer;transition:background .12s}
+  .option-btn:hover{background:rgba(255,255,255,0.05)}
+  .controls{display:flex;gap:10px;margin-top:14px;align-items:center}
+  .back-btn,.completed-btn{padding:10px 14px;border-radius:10px;border:0;color:#fff;cursor:pointer}
+  .back-btn{background:#ef4444}
+  .completed-btn{background:#10b981}
+  .points-line{margin-top:12px;color:#94a3b8;font-size:14px}
+
+  .popup-overlay{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(2,6,23,0.4);backdrop-filter:blur(4px);z-index:9999}
+  .popup{background:linear-gradient(180deg,#0b1220,#121827);padding:22px 28px;border-radius:12px;color:#fff;font-weight:800;box-shadow:0 18px 40px rgba(2,6,23,0.6);font-size:18px;text-align:center;min-width:220px}
+
+  @media (max-width: 980px){
+    main{flex-direction:column;padding:14px}
+    .levels-wrap{width:100%;flex-basis:auto;max-width:none}
+    .levels-container{height:40vh}
+    .panel{margin-top:14px}
+  }
+  @media (max-width:520px){
+    .level-box{min-height:72px;font-size:16px}
+    .level-inner{padding:8px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1 style="margin:0;font-size:18px">Air Pollution Quiz</h1>
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="points-badge" id="pointsBadge">Points: 0</div>
+  </div>
+</header>
+
+<main>
+  <div class="levels-wrap">
+    <div class="levels-container" id="levels"></div>
+  </div>
+
+  <section class="panel" id="panel">
+    <div id="panelContent">
+      <div class="placeholder" style="color:#8b98a9">
+        <p style="margin:0 0 8px 0;font-weight:700">Select a level on the left to start</p>
+        <p style="margin:0">Tip will appear above the question. Correct answers give +3 points and auto-advance to the next level.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="popup-overlay" id="popupOverlay" aria-hidden="true">
+  <div class="popup" id="popupText">+3 points</div>
+</div>
+
+<script>
+// -------------------------
+// 60 Air Pollution Questions
+// -------------------------
+const questions=[
+  {level:1,question:"What is the main cause of air pollution in cities?",options:["Trees","Vehicles","Rivers","Mountains"],answer:1,tip:"Vehicle emissions are a primary source of urban air pollution."},
+  {level:2,question:"Which gas is most responsible for global warming?",options:["Oxygen","Nitrogen","Carbon dioxide","Helium"],answer:2,tip:"CO2 traps heat in the atmosphere."},
+  {level:3,question:"Smog mainly consists of?",options:["Water vapor","Ozone and pollutants","Sand","Pollen"],answer:1,tip:"Smog is a mixture of smoke, fog, and pollutants."},
+  {level:4,question:"Acid rain is caused by which gases?",options:["CO2 and O2","SO2 and NOx","Helium and Argon","Methane and Oxygen"],answer:1,tip:"Sulfur dioxide and nitrogen oxides react with water to form acid rain."},
+  {level:5,question:"Which is a primary greenhouse gas?",options:["CO2","Oxygen","Argon","Neon"],answer:0,tip:"Carbon dioxide contributes to the greenhouse effect."},
+  {level:6,question:"Indoor air pollution can come from?",options:["Cooking smoke","Dust","Mold","All of these"],answer:3,tip:"All listed sources contribute to indoor pollution."},
+  {level:7,question:"Which human activity contributes most to CO2 emissions?",options:["Planting trees","Driving cars","Swimming","Reading"],answer:1,tip:"Fossil fuel combustion from vehicles releases CO2."},
+  {level:8,question:"Which natural phenomenon can worsen air pollution?",options:["Rain","Temperature inversion","Snow","Fog"],answer:1,tip:"Temperature inversion traps pollutants close to the ground."},
+  {level:9,question:"Air pollution mainly affects?",options:["Humans","Animals","Plants","All of these"],answer:3,tip:"All living beings are affected by poor air quality."},
+  {level:10,question:"Which particulate matter is dangerous for lungs?",options:["PM2.5","PM50","PM100","PM500"],answer:0,tip:"Fine particles (PM2.5) can penetrate deep into lungs."},
+  {level:11,question:"Ozone at ground level is:",options:["Beneficial","Harmful","Neutral","Colorless only"],answer:1,tip:"Tropospheric ozone damages respiratory health."},
+  {level:12,question:"Which sector emits the most air pollutants?",options:["Industry","Farming","Tourism","Education"],answer:0,tip:"Industries produce large amounts of pollutants."},
+  {level:13,question:"Which fuel type produces the least pollution?",options:["Coal","Petrol","CNG","Diesel"],answer:2,tip:"Compressed natural gas burns cleaner than others."},
+  {level:14,question:"Which respiratory disease is caused by air pollution?",options:["Asthma","Common cold","Flu","None"],answer:0,tip:"Asthma can be triggered or worsened by polluted air."},
+  {level:15,question:"Which device measures air quality?",options:["Thermometer","Barometer","AQI monitor","Speedometer"],answer:2,tip:"Air Quality Index (AQI) monitors pollutant levels."},
+  {level:16,question:"What is photochemical smog caused by?",options:["Sunlight + pollutants","Rainfall","Wind","Temperature"],answer:0,tip:"Sunlight reacts with pollutants to form smog."},
+  {level:17,question:"Which indoor material can reduce air pollutants?",options:["Air purifier","Glass","Metal","Wood"],answer:0,tip:"Air purifiers filter harmful indoor particles."},
+  {level:18,question:"Which gas is released from burning fossil fuels?",options:["O2","CO2","Helium","Argon"],answer:1,tip:"Combustion produces carbon dioxide."},
+  {level:19,question:"Acid rain can damage?",options:["Soil","Plants","Buildings","All of these"],answer:3,tip:"Acid rain harms soil, vegetation, and structures."},
+  {level:20,question:"Which gas causes respiratory issues in high concentrations?",options:["Oxygen","Carbon monoxide","Helium","Nitrogen"],answer:1,tip:"CO binds with hemoglobin, reducing oxygen transport."},
+  {level:21,question:"Which transport mode produces less air pollution per passenger?",options:["Car","Motorcycle","Bus","Truck"],answer:2,tip:"Buses reduce per-person emissions compared to cars."},
+  {level:22,question:"Forest fires release?",options:["CO2 and smoke","Oxygen","Nitrogen","Water vapor"],answer:0,tip:"Burning forests emit carbon dioxide and particulates."},
+  {level:23,question:"Indoor smoke mostly comes from?",options:["Cooking","Reading","Sleeping","Walking"],answer:0,tip:"Indoor cooking releases smoke and pollutants."},
+  {level:24,question:"Which energy source is cleanest?",options:["Coal","Solar","Diesel","Petrol"],answer:1,tip:"Solar energy generates no air pollution."},
+  {level:25,question:"Air pollution worsens during?",options:["Winter","Summer","Spring","Autumn"],answer:0,tip:"Temperature inversion in winter traps pollutants."},
+  {level:26,question:"Which pollutant is particulate?",options:["Dust","CO2","Oxygen","Helium"],answer:0,tip:"Particulate matter like dust can enter lungs."},
+  {level:27,question:"Indoor plants help by?",options:["Producing CO2","Filtering pollutants","Increasing temperature","No effect"],answer:1,tip:"Plants absorb some indoor pollutants."},
+  {level:28,question:"Vehicles should use?",options:["Clean fuel","Coal","Wood","Diesel"],answer:0,tip:"Cleaner fuels reduce emissions."},
+  {level:29,question:"Air pollution contributes to?",options:["Global warming","Acid rain","Health problems","All of these"],answer:3,tip:"Pollutants affect environment and health."},
+  {level:30,question:"Which gas depletes ozone layer?",options:["CFCs","CO2","O2","N2"],answer:0,tip:"Chlorofluorocarbons damage the ozone layer."},
+  {level:31,question:"AQI stands for?",options:["Air Quality Index","Air Quantity Indicator","Average Quality Index","Atmospheric Quality Info"],answer:0,tip:"AQI indicates air pollution levels."},
+  {level:32,question:"High smog reduces?",options:["Visibility","Noise","Temperature","Humidity"],answer:0,tip:"Thick smog lowers visibility."},
+  {level:33,question:"Air pollution can cause?",options:["Eye irritation","Cough","Asthma","All of these"],answer:3,tip:"Polluted air affects eyes, lungs, and health."},
+  {level:34,question:"Which indoor device worsens air pollution?",options:["Air conditioner without filter","Air purifier","Window","Fan"],answer:0,tip:"Unfiltered AC can circulate pollutants."},
+  {level:35,question:"Which country is known for severe air pollution?",options:["Norway","India","New Zealand","Iceland"],answer:1,tip:"Urban centers in India face high air pollution."},
+  {level:36,question:"Industrial emissions can release?",options:["SO2","NOx","Particulates","All of these"],answer:3,tip:"Factories emit gases and particulate matter."},
+  {level:37,question:"Which preventive measure helps cities?",options:["Planting trees","Using public transport","Reducing industry","All of these"],answer:3,tip:"Combined measures reduce urban air pollution."},
+  {level:38,question:"Ozone layer protects us from?",options:["UV rays","CO2","Oxygen","Nitrogen"],answer:0,tip:"Ozone absorbs harmful ultraviolet radiation."},
+  {level:39,question:"Indoor ventilation reduces?",options:["Noise","Air pollutants","Temperature","Humidity"],answer:1,tip:"Good airflow removes indoor pollutants."},
+  {level:40,question:"Which chemical is a major pollutant from vehicles?",options:["CO","O2","N2","H2"],answer:0,tip:"Carbon monoxide is toxic even at low concentrations."},
+  {level:41,question:"Air pollution can cause heart problems?",options:["Yes","No","Sometimes","Rarely"],answer:0,tip:"Long-term exposure increases cardiovascular risk."},
+  {level:42,question:"Industrial chimneys should have?",options:["Filters","No stack","Open vents","Paint only"],answer:0,tip:"Filters reduce particulate and gas emissions."},
+  {level:43,question:"Coal burning releases?",options:["SO2","CO2","Particulates","All of these"],answer:3,tip:"Coal combustion produces multiple pollutants."},
+  {level:44,question:"Air quality is better in?",options:["Urban cities","Rural areas","Industrial zones","Highways"],answer:1,tip:"Less traffic and industry improves air quality."},
+  {level:45,question:"Which gas contributes to respiratory illness?",options:["CO2","CO","O2","N2"],answer:1,tip:"CO is toxic and affects oxygen transport."},
+  {level:46,question:"Air pollution can cause?",options:["Skin problems","Lung diseases","Eye irritation","All of these"],answer:3,tip:"Pollutants affect multiple organs."},
+  {level:47,question:"Air quality improves with?",options:["Vehicle restrictions","Tree plantations","Cleaner fuels","All of these"],answer:3,tip:"All actions reduce pollution exposure."},
+  {level:48,question:"Which pollutant is odorless but toxic?",options:["CO","SO2","NO2","Dust"],answer:0,tip:"Carbon monoxide is dangerous and odorless."},
+  {level:49,question:"Air pollution levels are highest during?",options:["Rush hours","Night","Early morning","Afternoon"],answer:0,tip:"Peak traffic causes spikes in pollution."},
+  {level:50,question:"Which particulate is smallest?",options:["PM10","PM2.5","PM50","PM100"],answer:1,tip:"PM2.5 particles can penetrate deep into lungs."},
+  {level:51,question:"Vehicles using diesel emit?",options:["PM and NOx","Oxygen","Nitrogen","Helium"],answer:0,tip:"Diesel engines produce particulates and nitrogen oxides."},
+  {level:52,question:"Air pollution affects which climate?",options:["Local only","Global only","Both local and global","None"],answer:2,tip:"Pollutants affect both local air and global climate."},
+  {level:53,question:"Industrial smog mainly contains?",options:["SO2 and particulates","CO2 only","Water vapor","Nitrogen"],answer:0,tip:"Sulfur dioxide and particles form industrial smog."},
+  {level:54,question:"Which gas is colorless and dangerous indoors?",options:["CO","O2","N2","He"],answer:0,tip:"CO can accumulate and poison humans without warning."},
+  {level:55,question:"Reducing fossil fuel use helps?",options:["Air quality","Climate change","Health","All of these"],answer:3,tip:"Less fuel use reduces pollution, emissions, and health risk."},
+  {level:56,question:"Air pollution can affect crop yield?",options:["Yes","No","Sometimes","Rarely"],answer:0,tip:"Ozone and particulates damage plants and reduce yield."},
+  {level:57,question:"Which vehicle type emits the least pollution?",options:["Electric car","Diesel truck","Petrol car","Motorcycle"],answer:0,tip:"Electric vehicles produce zero tailpipe emissions."},
+  {level:58,question:"Pollutants in winter linger due to?",options:["Rain","Snow","Temperature inversion","Wind"],answer:2,tip:"Inversions trap pollutants close to the ground."},
+  {level:59,question:"Which daily habit reduces air pollution?",options:["Walking/cycling","Driving short trips","Leaving engines idling","Using diesel generators"],answer:0,tip:"Using eco-friendly transport reduces emissions."},
+  {level:60,question:"Main way to improve indoor air?",options:["Open windows/ventilation","Spray perfume","Air conditioning only","Use fans only"],answer:0,tip:"Ventilation removes indoor pollutants effectively."}
+];
+
+// -------------------------
+// Same JS as your Noise Pollution Quiz
+// -------------------------
+const levelsEl=document.getElementById('levels');
+const gradientClasses=['g1','g2','g3','g4','g5'];
+questions.forEach((q,idx)=>{
+  const box=document.createElement('div');
+  box.className='level-box '+gradientClasses[idx%gradientClasses.length];
+  box.dataset.level=q.level;
+  box.innerHTML=`<div class="level-inner"><div style="font-weight:900">Level ${q.level}</div><div style="margin-top:8px;font-weight:600;font-size:13px;opacity:.95">${q.question.slice(0,60)}${q.question.length>60?'...':''}</div></div>`;
+  box.addEventListener('click',()=>openQuestion(q.level));
+  levelsEl.appendChild(box);
+});
+
+const panelContent=document.getElementById('panelContent');
+const popupOverlay=document.getElementById('popupOverlay');
+const popupText=document.getElementById('popupText');
+const pointsBadge=document.getElementById('pointsBadge');
+let currentLevel=null;
+let totalPoints=0;
+let answeredCorrect={};
+
+function renderPanelPlaceholder(){
+  panelContent.innerHTML=`<div class="placeholder" style="color:#8b98a9">
+    <p style="margin:0 0 8px 0;font-weight:700">Select a level on the left to start</p>
+    <p style="margin:0">Tip appears above the question. Correct answers give +3 points and auto-advance.</p>
+  </div>`;
+}
+renderPanelPlaceholder();
+
+function openQuestion(level){
+  currentLevel=level;
+  const q=questions.find(x=>x.level===level);
+  if(!q) return;
+  panelContent.innerHTML='';
+  const tip=document.createElement('div'); tip.className='tip-box'; tip.textContent='💡 '+q.tip;
+  const title=document.createElement('div'); title.className='question-title'; title.textContent=`Level ${q.level}`;
+  const qtxt=document.createElement('div'); qtxt.className='question-text'; qtxt.textContent=q.question;
+  const optionsWrap=document.createElement('div'); optionsWrap.className='options';
+  q.options.forEach((opt,idx)=>{
+    const btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.textContent=opt;
+    btn.addEventListener('click',()=> handleAnswer(idx));
+    optionsWrap.appendChild(btn);
+  });
+  const controls=document.createElement('div'); controls.className='controls';
+  const completedBtn=document.createElement('button'); completedBtn.className='completed-btn'; completedBtn.style.display=answeredCorrect[level]?'inline-block':'none'; completedBtn.textContent='✅ Completed';
+  completedBtn.addEventListener('click',()=>{alert(`You marked Level ${level} completed.`)});
+  const backBtn=document.createElement('button'); backBtn.className='back-btn'; backBtn.textContent='⬅ Back'; backBtn.addEventListener('click',()=>{
+    renderPanelPlaceholder(); currentLevel=null; document.querySelector('.levels-container').scrollTo({ top:0, behavior:'smooth' });
+  });
+  controls.appendChild(completedBtn); controls.appendChild(backBtn);
+  const pointsLine=document.createElement('div'); pointsLine.className='points-line'; pointsLine.textContent=`Points: ${totalPoints}`;
+  panelContent.appendChild(tip); panelContent.appendChild(title); panelContent.appendChild(qtxt); panelContent.appendChild(optionsWrap); panelContent.appendChild(controls); panelContent.appendChild(pointsLine);
+}
+
+function showPopup(message){popupText.textContent=message;popupOverlay.style.display='flex';}
+function hidePopup(){popupOverlay.style.display='none';}
+function handleAnswer(selectedIdx){
+  if(currentLevel==null) return;
+  const q=questions.find(x=>x.level===currentLevel);
+  if(!q) return;
+  const correct=(selectedIdx===q.answer);
+  if(correct){
+    totalPoints+=3; pointsBadge.textContent='Points: '+totalPoints; answeredCorrect[currentLevel]=true;
+    showPopup('✅ Correct! +3 points');
+    const completedBtn=panelContent.querySelector('.completed-btn'); if(completedBtn) completedBtn.style.display='inline-block';
+    setTimeout(()=>{hidePopup(); if(currentLevel<questions.length){openQuestion(currentLevel+1); scrollToLevel(currentLevel+1);}else{showPopup('🎉 You completed all levels! Total Points: '+totalPoints); setTimeout(()=>hidePopup(),2000);}},1200);
+  }else{showPopup('❌ Wrong! Try again.'); setTimeout(()=>hidePopup(),900);}
+}
+
+function scrollToLevel(level){
+  const container=document.querySelector('.levels-container');
+  const el=container.querySelector(`[data-level='${level}']`);
+  if(el){const top=el.offsetTop-container.clientHeight/2+el.clientHeight/2;container.scrollTo({ top, behavior:'smooth' });}
+}
+
+document.addEventListener('keydown',(e)=>{
+  const container=document.querySelector('.levels-container');
+  const focusable=Array.from(container.querySelectorAll('.level-box'));
+  if(!focusable.length) return;
+  let activeIdx=focusable.findIndex(el=>el.classList.contains('active-level'));
+  if(activeIdx===-1){const center=container.scrollTop+container.clientHeight/2; let nearest=0,minDist=Infinity; focusable.forEach((el,idx)=>{const d=Math.abs((el.offsetTop+el.clientHeight/2)-center); if(d<minDist){minDist=d;nearest=idx;}}); activeIdx=nearest; focusable[activeIdx].classList.add('active-level');}
+  if(e.key==='ArrowDown'){e.preventDefault(); focusable[activeIdx].classList.remove('active-level'); const next=Math.min(activeIdx+1, focusable.length-1); focusable[next].classList.add('active-level'); focusable[next].scrollIntoView({behavior:'smooth',block:'center'});}
+  else if(e.key==='ArrowUp'){e.preventDefault(); focusable[activeIdx].classList.remove('active-level'); const prev=Math.max(activeIdx-1,0); focusable[prev].classList.add('active-level'); focusable[prev].scrollIntoView({behavior:'smooth',block:'center'});}
+  else if(e.key==='Enter'){e.preventDefault(); const active=container.querySelector('.active-level'); if(active) openQuestion(Number(active.dataset.level));}
+});
+
+document.addEventListener('click',(ev)=>{if(ev.target.closest('.level-box')) return; const active=document.querySelector('.active-level'); if(active) active.classList.remove('active-level');});
+setTimeout(()=>{const container=document.querySelector('.levels-container'); if(container) container.scrollTo({ top:1, behavior:'smooth' });},300);
+</script>
+</body>
+</html>
