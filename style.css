@@ -7,7 +7,8 @@
 
 body {
   background-color: #f5f5f5;
-  color: #0639e4;
+  color: #050505;
+  
 }
 
 /* Top Nav */
@@ -16,7 +17,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 15px 20px;
-  background: #2b2b2b;
+  background: #b49191;
   color: white;
   margin-top: 20px;
   border-radius: 30px;
@@ -186,7 +187,7 @@ body {
 }
 .soil-color {
   font-size: 32px;
-  color: #813d06;
+  color: #703403;
 }
 .shadow h4 {
   word-spacing: 20px;
@@ -250,21 +251,62 @@ body {
 .card h3 {
   margin-bottom: 10px;
 }
+/* Scrolling text box with two lines */
+.scroll-box {
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.scroll-box .line {
+  margin: 5px 0;
+  white-space: nowrap;
+  display: inline-block;
+  width: 100%;
+}
+
+/* First line scrolls left */
+.scroll-box .line.left {
+  animation: scroll-left 12s linear infinite;
+}
+
+/* Second line scrolls right */
+.scroll-box .line.right {
+  animation: scroll-right 12s linear infinite;
+}
+
+/* Scroll left */
+@keyframes scroll-left {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Scroll right */
+@keyframes scroll-right {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+
+
 
 /* Footer */
 footer {
   text-align: center;
   padding: 20px;
-  color: #2b2b2b;
+  color: #161616;
   margin-top: 40px;
 }
 footer a {
-  color: #050505;
+  color: #fcfafa;
   text-decoration: none;
   margin: 0 10px;
+  padding:center;
 }
 footer a:hover {
   text-decoration: underline;
+  color: #050370;
 }
 
 /* Profile Page */
@@ -447,3 +489,160 @@ button:hover {
     width: 100%;
   }
 }
+ /* quick Eco-Lesson Button */
+.eco-lesson-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.eco-btn {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s, background 0.3s;
+}
+
+.eco-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #66bb6a, #388e3c);
+}
+
+@media (max-width: 768px) {
+  .eco-btn {
+    font-size: 16px;
+    padding: 12px 22px;
+  }
+}
+ body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #e3d2f1; /* light purple background */
+    }
+
+    /* Features Section */
+    .features-section {
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .feature-box {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4); /* default gradient */
+      color: #000;
+      padding: 40px 30px;
+      border-radius: 12px;
+      margin: 30px auto;
+      max-width: 450px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;
+      opacity: 1;
+      transform: translateY(0);
+      overflow: hidden;
+    }
+
+    .feature-box.reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feature-box:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Moving text inside feature box */
+    .moving-text-container {
+      position: relative;
+      height: 40px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+
+    .moving-text-container p {
+      white-space: nowrap;
+      position: absolute;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .move-right {
+      animation: moveRight 8s linear infinite;
+    }
+
+    .move-left {
+      top: 20px;
+      animation: moveLeft 8s linear infinite;
+    }
+
+    @keyframes moveRight {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    @keyframes moveLeft {
+      0% { left: 100%; }
+      100% { left: -100%; }
+    }
+
+    /* Popup */
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      z-index: 1000;
+    }
+
+    .popup.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .popup-content {
+      background: linear-gradient(135deg, #a18cd1, #fbc2eb); /* gradient for popup */
+    color: #000;
+    padding: 50px 40px;
+    border-radius: 15px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 85vh;  
+    }
+
+    .popup-content h2 {
+      margin-top: 0;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #000;
+      cursor: pointer;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 600px) {
+      .feature-box {
+        max-width: 100%;
+        padding: 25px 20px;
+      }
+      .moving-text-container {
+        height: 50px;
+      }
+      .move-left {
+        top: 25px;
+      }
+    }
