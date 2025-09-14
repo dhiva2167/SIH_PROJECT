@@ -177,64 +177,19 @@
       <h3>Get Instant Stars ⭐</h3>
       <div class="scroll-box">
       <p class="line left">Earn stars for every correct answer and activity completed.</p>
-      <p class="line right">Earn stars for every correct answer and activity completed.</p>
+      
     </div>
     </div>
     <div class="card">
       <h3>Earn Ranks & Honors 🏆</h3>
       <div class="scroll-box right">
       <p class="line left">Climb the leaderboard and unlock special badges.</p>
-       <p class="line right">Climb the leaderboard and unlock special badges.</p>
+      
     </div>
     </div>
   </div>
   <!-- Features Section -->
-  <section class="features-section">
-    <div class="feature-box scroll-reveal" onclick="openPopup('Puzzle Game', 'Puzzle Game allows users to solve fun eco-friendly puzzles that enhance logical thinking, problem-solving skills, and creativity. The puzzles are designed to be interactive and visually engaging. Completing levels earns stars and encourages consistent participation. It also subtly educates about environmental issues while making learning fun.')">
-      <h3>🧩 Puzzle Game</h3>
-      <div class="moving-text-container">
-        <p class="move-right">Solve eco-friendly puzzles and boost your logic!</p>
-        <p class="move-left">Earn stars and rewards with every level you complete!</p>
-      </div>
-      <p>Click to learn more...</p>
-    </div>
-
-    <div class="feature-box scroll-reveal" onclick="openPopup('Daily Quest', 'Daily Quest challenges users to complete small daily tasks related to sustainability, pollution awareness, and eco-friendly habits. By completing quests, students earn stars, ranks, and badges. This keeps users engaged daily and builds a habit of learning while having fun. It tracks weekly progress and highlights achievements.')">
-      <h3>🗡️ Daily Quest</h3>
-      <div class="moving-text-container">
-        <p class="move-right">Complete daily eco-challenges and earn rewards!</p>
-        <p class="move-left">Consistency builds skills and unlocks weekly achievements!</p>
-      </div>
-      <p>Click to learn more...</p>
-    </div>
-
-    <div class="feature-box scroll-reveal" onclick="openPopup('Eco Lessons', 'Eco Lessons provide concise, interactive lessons on various environmental topics like air, water, soil, and thermal pollution. Students learn sustainable practices, the importance of protecting nature, and how daily actions impact the environment. These lessons are designed to be engaging, with quizzes integrated to reinforce knowledge and assess understanding.')">
-      <h3>🌱 Eco Lessons</h3>
-      <div class="moving-text-container">
-        <p class="move-right">Learn about sustainability and protecting nature!</p>
-        <p class="move-left">Interactive lessons with quizzes to test knowledge!</p>
-      </div>
-      <p>Click to learn more...</p>
-    </div>
-
-    <div class="feature-box scroll-reveal" onclick="openPopup('Badges & Achievements', 'Badges & Achievements track the student\'s progress throughout the platform. Students earn badges for completing daily quests, puzzles, and quizzes. Achievements highlight weekly top performers and showcase milestones. This gamified approach motivates learners, encourages consistency, and makes the learning experience rewarding and fun.')">
-      <h3>🎖️ Badges & Achievements</h3>
-      <div class="moving-text-container">
-        <p class="move-right">Track progress and unlock special badges!</p>
-        <p class="move-left">Showcase accomplishments and weekly highlights!</p>
-      </div>
-      <p>Click to learn more...</p>
-    </div>
-  </section>
-
-  <!-- Popup -->
-  <div class="popup" id="popup">
-    <div class="popup-content">
-      <span class="close-btn" onclick="closePopup()">&times;</span>
-      <h2 id="popup-title"></h2>
-      <p id="popup-text"></p>
-    </div>
-  </div>
+  
   
  <!-- Eco-Lesson Button -->
   <div class="eco-lesson-container">
@@ -286,55 +241,27 @@
   <hr>
 
   <!-- Footer -->
-  <footer>
-    <div style="display: flex; justify-content: center; gap: 350px; flex-wrap: wrap; text-align: left;">
-    <div>
-      <h4> Info</h4><br>
-    <a href="#">Privacy Policy</a> <br><br>
-    <a href="#">Terms of Service</a> <br><br>
-    <a href="#">About Us</a> <br><br>
-    <a href="#">Contact Us</a>
+<footer class="site-footer">
+  <div class="footer-container">
+    
+    <div class="footer-column">
+      <h4>Info</h4>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">About Us</a>
+      <a href="#">Contact Us</a>
     </div>
-    <div>
-     <h4> Quick links </h4><br>
-    <a href="#"> puzzle</a> <br><br>
-    <a href="#">puzzle map</a><br><br>
-    <a href="#"> Badges & Achievements</a> <br><br>
-    <a href="#">profile</a>
-    </div>
-    </div>
-  </footer>
-<script>
-    // Popup Functionality
-    function openPopup(title, text) {
-      document.getElementById("popup-title").innerText = title;
-      document.getElementById("popup-text").innerText = text;
-      document.getElementById("popup").classList.add("active");
-    }
 
-    function closePopup() {
-      document.getElementById("popup").classList.remove("active");
-    }
-  // Close popup when clicking outside the content
-  const popup = document.getElementById("popup");
-  popup.addEventListener('click', (e) => {
-    if (e.target === popup) {
-      closePopup();
-    }
-  });
-    // Scroll Reveal
-    const boxes = document.querySelectorAll('.feature-box');
-    const revealOnScroll = () => {
-      const triggerBottom = window.innerHeight * 0.85;
-      boxes.forEach(box => {
-        const boxTop = box.getBoundingClientRect().top;
-        if (boxTop < triggerBottom) {
-          box.classList.add('reveal');
-        }
-      });
-    };
-    window.addEventListener('scroll', revealOnScroll);
-    window.addEventListener('load', revealOnScroll);
-</script>
+    <div class="footer-column">
+      <h4>Quick Links</h4>
+      <a href="puzzlepuzzle.html">Puzzle</a>
+      <a href="puzzle.html">Puzzle Map</a>
+      <a href="categories.html">Ego Lessons</a>
+      <a href="profile.html">Profile</a>
+    </div>
+
+  </div>
+</footer>
+
 </body>
 </html>
