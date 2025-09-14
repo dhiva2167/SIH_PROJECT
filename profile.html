@@ -5,168 +5,296 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Player Profile</title>
   <style>
-    * {
+    body {
+      background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      background-color: rgb(163, 154, 247);
-    }
-
-    .profile-container {
-      height: 100vh;
-      width: 100vw;
-      background-color: #2b2b3f;
-      border-radius: 0px;
-      padding: 20px;
-      color: white;
-    }
-
-    .profile-top {
       display: flex;
       align-items: center;
-      gap: 20px;
-      margin-bottom: 20px;
-      flex-wrap: wrap; /* makes it wrap on mobile */
+      justify-content: center;
     }
-
+    .profile-container {
+      background: rgba(44, 44, 84, 0.97);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+      color: #fff;
+      padding: 32px 28px 24px 28px;
+      max-width: 400px;
+      width: 95vw;
+      margin: 24px 0;
+      backdrop-filter: blur(6px);
+    }
+    .avatar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 18px;
+    }
     .avatar img {
-      width: 140px;
-      height: 100px;
-      border-radius: 50% / 45%;
-      border: 3px solid #ffcc00;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 4px solid #ffcc00;
+      object-fit: cover;
+      box-shadow: 0 2px 12px #0003;
       cursor: pointer;
+      transition: box-shadow 0.2s;
+      background: #fff;
     }
-
-    .user-info {
-      display: grid;
-      grid-template-columns: 150px 1fr;
-      gap: 10px;
-      max-width: 600px;
-      width: 100%;
+    .avatar img:hover {
+      box-shadow: 0 4px 24px #ffcc0055;
     }
-
-    .user-info label {
-      font-weight: bold;
-      text-align: right;
-    }
-
-    .user-info input {
-      padding: 8px;
-      border-radius: 5px;
-      border: none;
-      width: 100%;
-      height: 45px;
-    }
-
-    button {
+    .avatar label {
       margin-top: 10px;
-      padding: 8px 15px;
+      background: #ffcc00;
+      color: #2b2b3f;
+      border-radius: 8px;
+      padding: 6px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.2s;
+      display: inline-block;
+    }
+    .avatar label:hover {
+      background: #ffe066;
+    }
+    .avatar input[type="file"] {
+      display: none;
+    }
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .user-info label {
+      font-weight: 600;
+      color: #ffe066;
+      margin-bottom: 2px;
+      font-size: 1em;
+    }
+    .user-info input {
+      padding: 10px 12px;
+      border-radius: 7px;
+      border: none;
+      background: #39395a;
+      color: #fff;
+      font-size: 1em;
+      outline: none;
+      transition: background 0.2s;
+    }
+    .user-info input[readonly] {
+      background: #39395a55;
+      color: #ccc;
+      cursor: not-allowed;
+    }
+    .edit-btn, .save-btn {
+      margin-top: 8px;
+      background: #ffcc00;
+      color: #2b2b3f;
       border: none;
       border-radius: 8px;
-      background-color: #ffcc00;
-      color: black;
+      padding: 8px 0;
       font-weight: bold;
       cursor: pointer;
+      font-size: 1em;
+      transition: background 0.2s;
+      width: 100%;
     }
-
-    button:hover {
-      background-color: #f9f9fc;
+    .edit-btn:hover, .save-btn:hover {
+      background: #ffe066;
     }
-
     .progress-container {
-      background-color: #8a7474;
-      border-radius: 20px;
-      height: 25px;
-      margin: 15px 0;
+      background: #39395a;
+      border-radius: 12px;
+      height: 22px;
+      width: 100%;
+      margin: 18px 0 12px 0;
+      overflow: hidden;
+      box-shadow: 0 1px 6px #0002;
     }
-
     .progress-bar {
+      background: linear-gradient(90deg, #ffcc00 60%, #ffe066 100%);
       height: 100%;
-      width: 57%; /* example */
-      background-color: #ffcc00;
-      border-radius: 20px;
+      width: 57%;
+      color: #2b2b3f;
+      font-weight: bold;
       text-align: right;
-      padding-right: 10px;
-      color: black;
-      font-weight: bold;
+      padding-right: 12px;
+      border-radius: 12px 0 0 12px;
+      line-height: 22px;
+      font-size: 1em;
+      transition: width 1s cubic-bezier(.4,2,.6,1);
     }
-
     .feedback label {
-      display: block;
+      font-weight: 600;
+      color: #ffe066;
       margin-bottom: 5px;
-      font-weight: bold;
+      display: block;
     }
-
     .feedback textarea {
-      width: 100%; /* full width on mobile */
-      height: 100px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      padding: 5px;
+      width: 100%;
+      min-height: 70px;
+      border-radius: 8px;
+      border: none;
+      padding: 10px;
+      font-size: 1em;
+      background: #39395a;
+      color: #fff;
+      margin-bottom: 8px;
+      resize: vertical;
     }
-
+    .feedback button {
+      background: #ffcc00;
+      color: #2b2b3f;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 0;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .feedback button:hover {
+      background: #ffe066;
+    }
     .back-btn {
-      margin-top: 10px;
-      width: 100%; /* full width on mobile */
-      height: 43px;
+      margin-top: 16px;
+      width: 100%;
+      background: #39395a;
+      color: #ffe066;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 0;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.2s;
+      display: block;
     }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .user-info {
-        grid-template-columns: 1fr; /* stack vertically */
+    .back-btn:hover {
+      background: #2b2b3f;
+    }
+    @media (max-width: 600px) {
+      .profile-container {
+        padding: 10px 2vw 10px 2vw;
+        max-width: 98vw;
       }
-
-      .user-info label {
-        text-align: left;
-      }
-
       .avatar img {
-        width: 100px;
-        height: 80px;
+        width: 70px;
+        height: 70px;
+      }
+      .user-info input {
+        font-size: 0.98em;
+        padding: 8px 8px;
+      }
+      .edit-btn, .save-btn, .feedback button, .back-btn {
+        font-size: 0.98em;
+        padding: 8px 0;
+      }
+      .progress-bar {
+        font-size: 0.92em;
+        padding-right: 4px;
       }
     }
   </style>
 </head>
 <body>
-
 <div class="profile-container">
 
-  <!-- Avatar and User Info -->
-  <div class="profile-top">
-    <div class="avatar">
-      <img src="avatar.png" id="profile-pic" alt="Avatar">
-      <input type="file" id="upload-avatar" accept="image/*" style="display:none;">
-    </div>
-    <div class="user-info">
-      <label>Username:</label>
-      <input type="text" id="username" value="Player1">
-      <label>Email:</label>
-      <input type="email" id="email" value="player1@example.com">
-      <button id="edit-profile">Edit Profile</button>
-    </div>
+  <!-- Avatar -->
+  <div class="avatar">
+    <img src="avatar.png" id="profile-pic" alt="Avatar">
+    <label for="upload-avatar">Change Avatar</label>
+    <input type="file" id="upload-avatar" accept="image/*">
   </div>
 
-  <!-- Progress Bar -->
+  <!-- User Info -->
+  <form id="profile-form" autocomplete="off" onsubmit="return false;">
+    <div class="user-info">
+      <div>
+        <label for="username">Username</label>
+        <input type="text" id="username" value="Player1" readonly>
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" value="player1@example.com" readonly>
+      </div>
+    </div>
+    <button type="button" class="edit-btn" id="edit-profile-btn">Edit Profile</button>
+    <button type="submit" class="save-btn" id="save-profile-btn" style="display:none;">Save</button>
+  </form>
+
+  <!-- Progress Bar (constant value) -->
   <div class="progress-container">
-    <div class="progress-bar" id="progress-bar">57%</div>
+    <div class="progress-bar" id="progress-bar" style="width: 57%;">57%</div>
   </div>
 
   <!-- Feedback -->
   <div class="feedback">
-    <label>Feedback:</label>
+    <label for="feedback-text">Feedback</label>
     <textarea id="feedback-text" placeholder="Write your feedback..."></textarea>
     <button id="submit-feedback">Submit</button>
   </div>
 
   <!-- Back button -->
   <a href="index.html"><button class="back-btn">Back</button></a>
-
 </div>
 
+<script>
+  // Avatar upload and preview
+  const profilePic = document.getElementById('profile-pic');
+  const uploadAvatar = document.getElementById('upload-avatar');
+  profilePic.onclick = () => uploadAvatar.click();
+  document.querySelector('.avatar label').onclick = () => uploadAvatar.click();
+  uploadAvatar.onchange = function() {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => profilePic.src = e.target.result;
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Edit/Save profile fields
+  const editBtn = document.getElementById('edit-profile-btn');
+  const saveBtn = document.getElementById('save-profile-btn');
+  const usernameInput = document.getElementById('username');
+  const emailInput = document.getElementById('email');
+  const form = document.getElementById('profile-form');
+
+  editBtn.onclick = function() {
+    usernameInput.readOnly = false;
+    emailInput.readOnly = false;
+    usernameInput.focus();
+    editBtn.style.display = 'none';
+    saveBtn.style.display = 'block';
+  };
+
+  form.onsubmit = function() {
+    usernameInput.readOnly = true;
+    emailInput.readOnly = true;
+    editBtn.style.display = 'block';
+    saveBtn.style.display = 'none';
+    alert('Profile updated!\nUsername: ' + usernameInput.value + '\nEmail: ' + emailInput.value);
+    // Here you can add AJAX to send data to your server if needed
+    return false;
+  };
+
+  // Feedback submit
+  document.getElementById('submit-feedback').onclick = function() {
+    const feedback = document.getElementById('feedback-text').value.trim();
+    if (feedback) {
+      alert('Thank you for your feedback!');
+      document.getElementById('feedback-text').value = '';
+    } else {
+      alert('Please enter feedback before submitting.');
+    }
+  };
+</script>
 </body>
 </html>

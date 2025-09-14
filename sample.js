@@ -101,3 +101,5 @@ function handleResize() {
 
 window.addEventListener("resize", handleResize);
 handleResize(); // Initialize on load
+//for count up//
+

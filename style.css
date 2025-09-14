@@ -8,7 +8,7 @@
 body {
   background-color: #f5f5f5;
   color: #050505;
-  
+  cursor: url('leaf-cursor.svg') 14 34, auto;
 }
 
 /* Top Nav */
@@ -160,7 +160,73 @@ body {
   border-radius: 20px;
   z-index: 0;
 }
-
+/* for countup */
+.pollution-stats-box {
+  background: linear-gradient(135deg, #e0ffe6 0%, #b2f0e6 100%);
+  border: 2px solid #4caf50;
+  border-radius: 20px;
+  max-width: 370px;
+  margin: 30px auto 20px auto;
+  padding: 28px 20px;
+  box-shadow: 0 4px 16px rgba(76,175,80,0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.pollution-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 12px 18px;
+  box-shadow: 0 2px 8px rgba(76,175,80,0.06);
+}
+.pollution-label {
+  font-weight: 600;
+  color: #267a1b;
+  font-size: 1.08em;
+}
+.pollution-count {
+  font-weight: bold;
+  font-size: 1.25em;
+  border-radius: 8px;
+  padding: 7px 20px;
+  min-width: 60px;
+  text-align: center;
+  letter-spacing: 1px;
+  box-shadow: 0 1px 4px rgba(76,175,80,0.10);
+  background: #4caf50;
+  color: #fff;
+  transition: background 0.3s;
+}
+/* Different colors for each pollution type */
+.pollution-stat-row:nth-child(1) .pollution-count { background: linear-gradient(90deg, #a0522d, #deb887); color: #fff; }
+.pollution-stat-row:nth-child(2) .pollution-count { background: linear-gradient(90deg, #2196f3, #00e5ff); color: #fff; }
+.pollution-stat-row:nth-child(3) .pollution-count { background: linear-gradient(90deg, #ff9800, #ffe082); color: #fff; }
+.pollution-stat-row:nth-child(4) .pollution-count { background: linear-gradient(90deg, #7b1fa2, #e040fb); color: #fff; }
+.pollution-stat-row:nth-child(5) .pollution-count { background: linear-gradient(90deg, #c62828, #ff5252); color: #fff; }
+@media (max-width: 600px) {
+  .pollution-stats-box {
+    max-width: 98vw;
+    padding: 14px 2vw;
+  }
+  .pollution-stat-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 8px;
+  }
+  .pollution-label {
+    font-size: 1em;
+  }
+  .pollution-count {
+    font-size: 1.1em;
+    padding: 6px 10px;
+    min-width: 40px;
+  }
+}
+/* pollution boxes*/
 .image1 {
   width: auto;
   height: 350px;

@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gamified Education Platform</title>
   <link rel="stylesheet" href="style.css">
+
   <script src="sample.js" defer></script>
 
   <style>
@@ -197,6 +198,31 @@
       🌱 Go to Eco-Lesson 
     </button>
   </div>
+
+      <!--for count up-->
+ <div class="pollution-stats-box">
+  <div class="pollution-stat-row">
+    <span class="pollution-label">Soil Pollution:</span>
+    <span class="pollution-count" data-target="52">0%</span>
+  </div>
+  <div class="pollution-stat-row">
+    <span class="pollution-label">Water Pollution:</span>
+    <span class="pollution-count" data-target="56">0%</span>
+  </div>
+  <div class="pollution-stat-row">
+    <span class="pollution-label">Thermal Pollution:</span>
+    <span class="pollution-count" data-target="45">0%</span>
+  </div>
+  <div class="pollution-stat-row">
+    <span class="pollution-label">Plastic Pollution:</span>
+    <span class="pollution-count" data-target="72">0%</span>
+  </div>
+  <div class="pollution-stat-row">
+    <span class="pollution-label">Air Pollution:</span>
+    <span class="pollution-count" data-target="99">0%</span>
+  </div>
+</div>
+ 
   <!-- Pollution sections -->
   <section class="shadow">
     <div class="pollution-item">
@@ -262,6 +288,26 @@
 
   </div>
 </footer>
-
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+  const counters = document.querySelectorAll('.pollution-count');
+  counters.forEach(counter => {
+    const target = +counter.getAttribute('data-target');
+    let count = 0;
+    const duration = 1200; // ms
+    const step = Math.ceil(target / (duration / 20));
+    function update() {
+      count += step;
+      if (count < target) {
+        counter.textContent = count + "%";
+        setTimeout(update, 20);
+      } else {
+        counter.textContent = target + "%";
+      }
+    }
+    update();
+  });
+});
+</script>
 </body>
 </html>
